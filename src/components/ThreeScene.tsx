@@ -1,8 +1,8 @@
 
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import * as THREE from 'three';
-import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls';
-import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader';
+import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js'; // Note the .js extension
+import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js'; // Note the .js extension
 
 // This is a fallback component in case the 3D model fails to load
 const DeveloperFallback = () => (
@@ -155,6 +155,3 @@ export default function ThreeScene() {
     </>
   );
 }
-
-// Add import for useState
-import { useState } from 'react';
