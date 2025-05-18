@@ -49,8 +49,8 @@ export function Experience() {
       id="experience"
       ref={elementRef as React.RefObject<HTMLElement>}
       className={cn(
-        "py-16 md:py-24 relative",
-        isIntersecting ? "animate-fade-in" : "opacity-0"
+        "py-16 md:py-24 relative transition-all duration-700",
+        isIntersecting ? "opacity-100 translate-y-0" : "opacity-0 translate-y-10"
       )}
     >
       <div className="container mx-auto px-4 md:px-6">
@@ -79,7 +79,8 @@ export function Experience() {
                 <div className={cn(
                   "ml-12 md:ml-0 md:w-5/12",
                   index % 2 === 0 ? "md:mr-12" : "md:ml-12",
-                  "p-6 bg-card rounded-lg shadow-md transition-all duration-300 hover:shadow-lg border-2 hover:border-aqua"
+                  "p-6 bg-card rounded-lg shadow-md transition-all duration-500 hover:shadow-lg border-2 hover:border-aqua",
+                  isIntersecting ? `animate-fade-in-up [animation-delay:${index * 0.2}s]` : "opacity-0"
                 )}>
                   <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-4">
                     <h3 className="text-xl font-semibold text-foreground">{exp.role}</h3>

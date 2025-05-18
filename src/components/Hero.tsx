@@ -1,6 +1,6 @@
 
 import { Button } from "@/components/ui/button";
-import ThreeScene from "./ThreeScene";
+import DeveloperGif from "./ThreeScene";
 import { Github, Linkedin } from "lucide-react";
 import useIntersectionObserver from "@/hooks/useIntersectionObserver";
 import { cn } from "@/lib/utils";
@@ -16,15 +16,15 @@ export function Hero() {
       id="home"
       ref={elementRef as React.RefObject<HTMLElement>}
       className={cn(
-        "min-h-screen flex flex-col justify-center pt-16",
-        isIntersecting ? "animate-fade-in" : "opacity-0"
+        "min-h-screen flex flex-col justify-center pt-16 transition-all duration-700",
+        isIntersecting ? "opacity-100 translate-y-0" : "opacity-0 translate-y-10"
       )}
     >
       <div className="container mx-auto px-4 md:px-6">
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-center">
-          {/* 3D Model Container */}
-          <div className="order-2 lg:order-1 h-[400px] md:h-[500px] flex items-center justify-center">
-            <ThreeScene />
+          {/* Developer GIF Container */}
+          <div className="order-2 lg:order-1">
+            <DeveloperGif />
           </div>
 
           {/* Text Content */}
@@ -34,7 +34,7 @@ export function Hero() {
                 <span className="text-aqua">Akash</span> Yadav
               </h1>
               <div className="h-12">
-                <p className="typewriter text-xl md:text-2xl font-medium">
+                <p className="typewriter-text text-xl md:text-2xl font-medium">
                   Full Stack Developer
                 </p>
               </div>

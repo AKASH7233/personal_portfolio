@@ -146,12 +146,24 @@
     @apply absolute top-1.5 left-4 w-7 h-7 rounded-full bg-aqua transform -translate-x-1/2 flex items-center justify-center;
   }
   
-  /* Type writer animation */
-  .typewriter {
-    @apply overflow-hidden whitespace-nowrap border-r-4 pr-1;
+  /* Type writer animation - fixed */
+  .typewriter-text {
+    @apply overflow-hidden relative;
     border-right: 0.15em solid;
-    animation: type-writer 4s steps(40) forwards, blink-cursor 0.8s step-end infinite;
-    width: 0;
+    white-space: nowrap;
+    margin: 0 auto;
+    letter-spacing: 0.05em;
+    animation: typing 3.5s steps(40, end), blink-caret 0.75s step-end infinite;
+  }
+  
+  @keyframes typing {
+    from { width: 0 }
+    to { width: 100% }
+  }
+  
+  @keyframes blink-caret {
+    from, to { border-color: transparent }
+    50% { border-color: #33C3F0; }
   }
   
   /* 3D Canvas */

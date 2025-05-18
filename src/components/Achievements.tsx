@@ -47,8 +47,8 @@ export function Achievements() {
       id="achievements"
       ref={elementRef as React.RefObject<HTMLElement>}
       className={cn(
-        "py-16 md:py-24 bg-muted/50",
-        isIntersecting ? "animate-fade-in" : "opacity-0"
+        "py-16 md:py-24 bg-muted/50 transition-all duration-700",
+        isIntersecting ? "opacity-100 translate-y-0" : "opacity-0 translate-y-10"
       )}
     >
       <div className="container mx-auto px-4 md:px-6">
@@ -59,9 +59,9 @@ export function Achievements() {
             <div 
               key={index}
               className={cn(
-                "bg-card rounded-lg p-6 shadow-md hover:shadow-lg transition-all duration-300 border-2 hover:border-aqua border-transparent",
+                "bg-card rounded-lg p-6 shadow-md hover:shadow-lg transition-all duration-500 border-2 hover:border-aqua border-transparent",
                 "transform hover:-translate-y-2 flex flex-col items-center text-center",
-                isIntersecting ? `animate-fade-in-up [animation-delay:${index * 0.1}s]` : "opacity-0"
+                isIntersecting ? `animate-fade-in-up [animation-delay:${index * 0.15}s]` : "opacity-0"
               )}
             >
               <div className="mb-4">

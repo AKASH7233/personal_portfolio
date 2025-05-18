@@ -49,8 +49,8 @@ export function Education() {
       id="education"
       ref={elementRef as React.RefObject<HTMLElement>}
       className={cn(
-        "py-16 md:py-24 relative",
-        isIntersecting ? "animate-fade-in" : "opacity-0"
+        "py-16 md:py-24 relative transition-all duration-700",
+        isIntersecting ? "opacity-100 translate-y-0" : "opacity-0 translate-y-10"
       )}
     >
       <div className="container mx-auto px-4 md:px-6">
@@ -74,9 +74,9 @@ export function Education() {
                 
                 {/* Timeline content */}
                 <div className={cn(
-                  "w-full md:w-5/12 p-6 bg-card rounded-lg shadow-md transition-all duration-300 hover:shadow-lg",
+                  "w-full md:w-5/12 p-6 bg-card rounded-lg shadow-md transition-all duration-500 hover:shadow-lg",
                   "hover:border-aqua border-2",
-                  index % 2 === 0 ? "animate-fade-in" : "animate-fade-in"
+                  isIntersecting ? `animate-fade-in-up [animation-delay:${index * 0.2}s]` : "opacity-0"
                 )}>
                   <h3 className="text-xl font-semibold text-aqua">{item.institution}</h3>
                   <h4 className="text-lg font-medium mt-1">{item.degree}</h4>

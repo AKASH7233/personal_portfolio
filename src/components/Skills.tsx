@@ -46,8 +46,8 @@ export function Skills() {
       id="skills"
       ref={elementRef as React.RefObject<HTMLElement>}
       className={cn(
-        "py-16 md:py-24 overflow-hidden",
-        isIntersecting ? "animate-fade-in" : "opacity-0"
+        "py-16 md:py-24 overflow-hidden transition-all duration-700",
+        isIntersecting ? "opacity-100 translate-y-0" : "opacity-0 translate-y-10"
       )}
     >
       <div className="container mx-auto px-4 md:px-6">
@@ -73,7 +73,7 @@ export function Skills() {
                 }
               }}
             >
-              <div className="flex animate-slide-left-to-right">
+              <div className="flex animate-slow-slide-left-to-right">
                 {programmingSkills.map((skill, index) => (
                   <div
                     key={`prog-${index}`}
@@ -116,7 +116,7 @@ export function Skills() {
                 }
               }}
             >
-              <div className="flex animate-slide-right-to-left">
+              <div className="flex animate-slow-slide-right-to-left">
                 {toolsSkills.map((skill, index) => (
                   <div
                     key={`tool-${index}`}

@@ -15,8 +15,8 @@ export function About() {
       id="about"
       ref={elementRef as React.RefObject<HTMLElement>}
       className={cn(
-        "py-16 md:py-24",
-        isIntersecting ? "animate-fade-in" : "opacity-0"
+        "py-16 md:py-24 transition-all duration-700",
+        isIntersecting ? "opacity-100 translate-y-0" : "opacity-0 translate-y-10"
       )}
     >
       <div className="container mx-auto px-4 md:px-6">

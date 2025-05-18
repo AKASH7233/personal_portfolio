@@ -120,12 +120,22 @@ export default {
 					'0%, 100%': { transform: 'translateY(0)' },
 					'50%': { transform: 'translateY(-10px)' },
 				},
+                'slow-slide-left-to-right': {
+                    '0%': { transform: 'translateX(-100%)' },
+                    '100%': { transform: 'translateX(100%)' },
+                },
+                'slow-slide-right-to-left': {
+                    '0%': { transform: 'translateX(100%)' },
+                    '100%': { transform: 'translateX(-100%)' },
+                },
 			},
 			animation: {
 				'accordion-down': 'accordion-down 0.2s ease-out',
 				'accordion-up': 'accordion-up 0.2s ease-out',
 				'slide-left-to-right': 'slide-left-to-right 25s linear infinite',
 				'slide-right-to-left': 'slide-right-to-left 25s linear infinite',
+				'slow-slide-left-to-right': 'slow-slide-left-to-right 40s linear infinite',
+				'slow-slide-right-to-left': 'slow-slide-right-to-left 40s linear infinite',
 				'fade-in-up': 'fade-in-up 0.7s ease-out forwards',
 				'fade-in': 'fade-in 0.5s ease forwards',
 				'type-writer': 'type-writer 4s steps(40) forwards',
