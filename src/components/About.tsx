@@ -24,7 +24,10 @@ export function About() {
         
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 mt-8">
           {/* Profile Image */}
-          <div className="lg:col-span-4 flex justify-center lg:justify-start">
+          <div className={cn(
+            "lg:col-span-4 flex justify-center lg:justify-start transition-all duration-700 delay-100",
+            isIntersecting ? "opacity-100 translate-x-0" : "opacity-0 -translate-x-10"
+          )}>
             <div className="relative w-64 h-64 rounded-full overflow-hidden border-4 border-aqua">
               {/* Using a placeholder, would be replaced with Akash's actual photo */}
               <div className="w-full h-full bg-gradient-to-br from-aqua to-aqua/30 flex items-center justify-center text-white">
@@ -34,7 +37,10 @@ export function About() {
           </div>
           
           {/* Bio Content */}
-          <div className="lg:col-span-8">
+          <div className={cn(
+            "lg:col-span-8 transition-all duration-700 delay-200",
+            isIntersecting ? "opacity-100 translate-x-0" : "opacity-0 translate-x-10"
+          )}>
             <div className="space-y-4 text-lg">
               <p>
                 I'm a <span className="text-aqua font-semibold">Full Stack Developer</span> with expertise in React.js, Next.js, MongoDB, Express.js and more modern web technologies. I build responsive, user-friendly web applications with focus on performance and best practices.

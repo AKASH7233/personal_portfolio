@@ -62,18 +62,23 @@ export function Skills() {
             <div 
               ref={row1Ref}
               className="flex overflow-hidden"
-              onMouseEnter={() => {
-                if (row1Ref.current) {
-                  row1Ref.current.style.animationPlayState = 'paused';
-                }
-              }}
-              onMouseLeave={() => {
-                if (row1Ref.current) {
-                  row1Ref.current.style.animationPlayState = 'running';
-                }
-              }}
             >
-              <div className="flex animate-slow-slide-left-to-right">
+              <div 
+                className="flex animate-slow-slide-left-to-right"
+                style={{
+                  animationDuration: '60s',
+                  animationIterationCount: 'infinite',
+                  animationPlayState: 'running'
+                }}
+                onMouseEnter={(e) => {
+                  // Set animation-play-state to paused on hover
+                  (e.currentTarget as HTMLDivElement).style.animationPlayState = 'paused';
+                }}
+                onMouseLeave={(e) => {
+                  // Resume animation when hover is removed
+                  (e.currentTarget as HTMLDivElement).style.animationPlayState = 'running';
+                }}
+              >
                 {programmingSkills.map((skill, index) => (
                   <div
                     key={`prog-${index}`}
@@ -105,18 +110,23 @@ export function Skills() {
             <div 
               ref={row2Ref}
               className="flex overflow-hidden"
-              onMouseEnter={() => {
-                if (row2Ref.current) {
-                  row2Ref.current.style.animationPlayState = 'paused';
-                }
-              }}
-              onMouseLeave={() => {
-                if (row2Ref.current) {
-                  row2Ref.current.style.animationPlayState = 'running';
-                }
-              }}
             >
-              <div className="flex animate-slow-slide-right-to-left">
+              <div 
+                className="flex animate-slow-slide-right-to-left"
+                style={{
+                  animationDuration: '60s',
+                  animationIterationCount: 'infinite',
+                  animationPlayState: 'running'
+                }}
+                onMouseEnter={(e) => {
+                  // Set animation-play-state to paused on hover
+                  (e.currentTarget as HTMLDivElement).style.animationPlayState = 'paused';
+                }}
+                onMouseLeave={(e) => {
+                  // Resume animation when hover is removed
+                  (e.currentTarget as HTMLDivElement).style.animationPlayState = 'running';
+                }}
+              >
                 {toolsSkills.map((skill, index) => (
                   <div
                     key={`tool-${index}`}

@@ -1,4 +1,5 @@
 
+import { useState, useRef, useEffect } from "react";
 import { UserCircle2 } from "lucide-react";
 import useIntersectionObserver from "@/hooks/useIntersectionObserver";
 import { cn } from "@/lib/utils";
@@ -44,6 +45,44 @@ export function Experience() {
     rootMargin: "-100px",
   });
 
+  const experienceItemsRefs = useRef<(HTMLDivElement | null)[]>([]);
+  const [visibleItems, setVisibleItems] = useState<boolean[]>(Array(experiences.length).fill(false));
+
+  // Set up individual intersection observers for each experience item
+  useEffect(() => {
+    const observers: IntersectionObserver[] = [];
+    
+    experienceItemsRefs.current.forEach((item, index) => {
+      if (!item) return;
+      
+      const observer = new IntersectionObserver(
+        ([entry]) => {
+          if (entry.isIntersecting) {
+            setVisibleItems(prev => {
+              const updated = [...prev];
+              updated[index] = true;
+              return updated;
+            });
+          } else {
+            setVisibleItems(prev => {
+              const updated = [...prev];
+              updated[index] = false;
+              return updated;
+            });
+          }
+        },
+        { threshold: 0.3, rootMargin: "-10% 0px" }
+      );
+      
+      observer.observe(item);
+      observers.push(observer);
+    });
+    
+    return () => {
+      observers.forEach(observer => observer.disconnect());
+    };
+  }, []);
+
   return (
     <section
       id="experience"
@@ -65,6 +104,7 @@ export function Experience() {
             {experiences.map((exp, index) => (
               <div 
                 key={index}
+                ref={el => experienceItemsRefs.current[index] = el}
                 className={cn(
                   "relative flex md:items-center",
                   index % 2 === 0 ? "md:justify-end" : "",
@@ -80,7 +120,9 @@ export function Experience() {
                   "ml-12 md:ml-0 md:w-5/12",
                   index % 2 === 0 ? "md:mr-12" : "md:ml-12",
                   "p-6 bg-card rounded-lg shadow-md transition-all duration-500 hover:shadow-lg border-2 hover:border-aqua",
-                  isIntersecting ? `animate-fade-in-up [animation-delay:${index * 0.2}s]` : "opacity-0"
+                  visibleItems[index] 
+                    ? "opacity-100 translate-y-0 transition-all duration-700"
+                    : "opacity-0 translate-y-10"
                 )}>
                   <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-4">
                     <h3 className="text-xl font-semibold text-foreground">{exp.role}</h3>

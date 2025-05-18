@@ -1,4 +1,5 @@
 
+import { useRef, useEffect, useState } from "react";
 import useIntersectionObserver from "@/hooks/useIntersectionObserver";
 import { cn } from "@/lib/utils";
 
@@ -43,6 +44,44 @@ export function Education() {
     threshold: 0.1,
     rootMargin: "-100px",
   });
+  
+  const timelineItemsRefs = useRef<(HTMLDivElement | null)[]>([]);
+  const [visibleItems, setVisibleItems] = useState<boolean[]>(Array(educationItems.length).fill(false));
+
+  // Set up individual intersection observers for each timeline item
+  useEffect(() => {
+    const observers: IntersectionObserver[] = [];
+    
+    timelineItemsRefs.current.forEach((item, index) => {
+      if (!item) return;
+      
+      const observer = new IntersectionObserver(
+        ([entry]) => {
+          if (entry.isIntersecting) {
+            setVisibleItems(prev => {
+              const updated = [...prev];
+              updated[index] = true;
+              return updated;
+            });
+          } else {
+            setVisibleItems(prev => {
+              const updated = [...prev];
+              updated[index] = false;
+              return updated;
+            });
+          }
+        },
+        { threshold: 0.3, rootMargin: "-10% 0px" }
+      );
+      
+      observer.observe(item);
+      observers.push(observer);
+    });
+    
+    return () => {
+      observers.forEach(observer => observer.disconnect());
+    };
+  }, []);
 
   return (
     <section
@@ -65,6 +104,7 @@ export function Education() {
             {educationItems.map((item, index) => (
               <div 
                 key={index} 
+                ref={el => timelineItemsRefs.current[index] = el}
                 className={`flex flex-col md:flex-row items-center ${
                   item.isRight ? "md:flex-row-reverse" : ""
                 } mb-16 md:mb-24`}
@@ -76,7 +116,9 @@ export function Education() {
                 <div className={cn(
                   "w-full md:w-5/12 p-6 bg-card rounded-lg shadow-md transition-all duration-500 hover:shadow-lg",
                   "hover:border-aqua border-2",
-                  isIntersecting ? `animate-fade-in-up [animation-delay:${index * 0.2}s]` : "opacity-0"
+                  visibleItems[index] 
+                    ? `opacity-100 translate-y-0 transition-all duration-700 delay-${index * 200}`
+                    : "opacity-0 translate-y-10"
                 )}>
                   <h3 className="text-xl font-semibold text-aqua">{item.institution}</h3>
                   <h4 className="text-lg font-medium mt-1">{item.degree}</h4>
