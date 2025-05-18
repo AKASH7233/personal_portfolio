@@ -57,11 +57,17 @@ export function About() {
               
               {/* Download Resume Button */}
               <div className="pt-4">
-                <Button 
-                  className="bg-aqua hover:bg-aqua/80 text-white"
-                >
+              <a 
+                href="https://drive.google.com/uc?export=download&id=1Mpyu3tKd3iZ_mzMQdeAHwbfk1dqcUafI" 
+                download
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                <Button className="bg-aqua hover:bg-aqua/80 text-white">
                   <Download className="mr-2 h-4 w-4" /> Download Resume
                 </Button>
+              </a>
+
               </div>
             </div>
           </div>

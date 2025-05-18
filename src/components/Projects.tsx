@@ -24,7 +24,7 @@ const projects: Project[] = [
     image: "https://via.placeholder.com/600x400?text=ConnectiFy",
     preview: "https://via.placeholder.com/800x600?text=ConnectiFy+Preview",
     github: "https://github.com/akash7233",
-    live: "#"
+    live: "https://connectify-omega.vercel.app/"
   },
   {
     title: "Movix",
@@ -33,7 +33,7 @@ const projects: Project[] = [
     image: "https://via.placeholder.com/600x400?text=Movix",
     preview: "https://via.placeholder.com/800x600?text=Movix+Preview",
     github: "https://github.com/akash7233",
-    live: "#"
+    live: "https://movix-two-iota.vercel.app/"
   }
 ];
 
@@ -47,20 +47,20 @@ export function Projects() {
   const projectRefs = useRef<(HTMLDivElement | null)[]>([]);
   
   const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>, index: number) => {
-    if (!projectRefs.current[index]) return;
+    // if (!projectRefs.current[index]) return;
     
-    const card = projectRefs.current[index];
-    const rect = card!.getBoundingClientRect();
-    const x = e.clientX - rect.left;
-    const y = e.clientY - rect.top;
+    // const card = projectRefs.current[index];
+    // const rect = card!.getBoundingClientRect();
+    // const x = e.clientX - rect.left;
+    // const y = e.clientY - rect.top;
     
-    const centerX = rect.width / 2;
-    const centerY = rect.height / 2;
+    // const centerX = rect.width / 2;
+    // const centerY = rect.height / 2;
     
-    const rotateX = (y - centerY) / 20;
-    const rotateY = (centerX - x) / 20;
+    // const rotateX = (y - centerY) / 20;
+    // const rotateY = (centerX - x) / 20;
     
-    card!.style.transform = `perspective(1000px) rotateX(${rotateX}deg) rotateY(${rotateY}deg)`;
+    // card!.style.transform = `perspective(1000px) rotateX(${rotateX}deg) rotateY(${rotateY}deg)`;
   };
   
   const handleMouseLeave = (index: number) => {
@@ -91,7 +91,7 @@ export function Projects() {
               style={{ transformStyle: 'preserve-3d', transition: 'transform 0.1s ease' }}
             >
               {/* Project Image with Hover Card */}
-              <HoverCard>
+              {/* <HoverCard>
                 <HoverCardTrigger asChild>
                   <div className="relative w-full h-48 overflow-hidden">
                     <img 
@@ -101,18 +101,42 @@ export function Projects() {
                     />
                   </div>
                 </HoverCardTrigger>
-                <HoverCardContent className="w-80 p-0">
-                  <img 
-                    src={project.preview}
-                    alt={`${project.title} Preview`}
-                    className="w-full h-auto rounded-md"
-                  />
-                  <div className="p-2 text-center">
-                    <p className="text-sm text-muted-foreground">Live Preview</p>
-                  </div>
+                <HoverCardContent className="w-80 p-0 overflow-hidden rounded-md">
+                  {project.live !== "#" ? (
+                    <iframe
+                      src={project.live}
+                      title={`${project.title} Live Preview`}
+                      className="w-full h-60 border-none rounded-md"
+                      sandbox="allow-scripts allow-same-origin allow-popups allow-forms"
+                    ></iframe>
+                  ) : (
+                    <div className="w-full h-60 flex items-center justify-center bg-muted text-sm text-muted-foreground">
+                      Live preview not available
+                    </div>
+                  )}
                 </HoverCardContent>
-              </HoverCard>
+              </HoverCard> */}
               
+            <a 
+              href={project.live} 
+              target="_blank" 
+              rel="noopener noreferrer"
+              className="block relative w-full h-[40vh] overflow-hidden rounded-t-xl"
+            >
+              {project.live !== "#" ? (
+                <iframe
+                  src={project.live}
+                  title={`${project.title} Live Preview`}
+                  className="w-full h-full border-none transition-transform duration-500 hover:scale-105"
+                  sandbox="allow-scripts allow-same-origin allow-popups allow-forms"
+                ></iframe>
+              ) : (
+                <div className="w-full h-full flex items-center justify-center bg-muted text-sm text-muted-foreground">
+                  Live preview not available
+                </div>
+              )}
+            </a>
+
               {/* Project Content */}
               <div className="p-6">
                 <h3 className="text-xl font-semibold mb-2 typewriter">{project.title}</h3>
