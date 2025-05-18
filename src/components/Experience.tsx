@@ -111,10 +111,14 @@ export function Experience() {
                 )}
               >
                 {/* Timeline marker */}
-                <div className="timeline-marker">
+                <div
+                  className={`timeline-marker ${
+                    index % 2 === 0 ? "xl:left-[calc(50%+30px)]" : "xl:left-0"
+                  }`}
+                >
                   <UserCircle2 className="h-4 w-4 text-white" />
                 </div>
-                
+
                 {/* Experience card */}
                 <div className={cn(
                   "ml-12 md:ml-0 md:w-5/12",
