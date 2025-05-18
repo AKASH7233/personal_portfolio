@@ -16,23 +16,25 @@ const achievements: Achievement[] = [
     title: "Winner of Finothon",
     description: "Organized by Wealthify.me",
     icon: <Trophy className="h-10 w-10 text-aqua" />,
-    link: "#" // Certificate link would go here
+    link: "https://drive.google.com/file/d/1XGk6BOzxrlKXGlLfcPSx6m75fe92yn3I/view?usp=sharing" // Certificate link would go here
   },
   {
-    title: "450+ DSA Problems",
+    title: "300+ DSA Problems",
     description: "Solved across LeetCode and other platforms",
     icon: <BadgeCheck className="h-10 w-10 text-aqua" />,
     link: "https://leetcode.com/u/akashyadv7233" // LeetCode profile
   },
   {
-    title: "Technical Member @ RCTCET",
-    description: "Coordinated tech events for 200+ attendees, boosting community engagement",
-    icon: <Award className="h-10 w-10 text-aqua" />
+    title: "Top 8 in Hackquinox",
+    description: "Organized by F.R. C. Rodriques Institute of Technology, Vashi",
+    icon: <Trophy className="h-10 w-10 text-aqua" />,
+    link: "https://drive.google.com/file/d/1WrWWajStDvOksHaBuewu7flntopfw4HO/view?usp=sharing" // Certificate link would go here
   },
   {
     title: "Technical Member @ CSI TCET",
-    description: "Developed club website, increasing event registrations by 15%",
-    icon: <Award className="h-10 w-10 text-aqua" />
+    description: "Developed club website, Created About Us Page and Events Page",
+    icon: <Award className="h-10 w-10 text-aqua" />,
+    link: "https://drive.google.com/file/d/1nuPRuuxzdKAs1bHs22H1rHbYkZsjdBzr/view?usp=sharing"
   }
 ];
 

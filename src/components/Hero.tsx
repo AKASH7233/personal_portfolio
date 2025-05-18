@@ -35,11 +35,11 @@ export function Hero() {
               </h1>
               <div className="h-12">
                 <p className="typewriter-text text-xl md:text-2xl font-medium">
-                  Full Stack Developer
+                  Software Developer Engineer
                 </p>
               </div>
               <p className="mt-4 text-lg md:text-xl text-muted-foreground max-w-xl mx-auto lg:mx-0">
-                Building innovative web solutions with modern technologies
+                Building innovative solutions with modern technologies
               </p>
             </div>
 

@@ -23,7 +23,7 @@ const projects: Project[] = [
     technologies: ["React.js", "Redux", "Shadcn-ui", "SCSS", "React-Player", "Axios"],
     image: "https://via.placeholder.com/600x400?text=ConnectiFy",
     preview: "https://via.placeholder.com/800x600?text=ConnectiFy+Preview",
-    github: "https://github.com/akash7233",
+    github: "https://github.com/akash7233/connectify",
     live: "https://connectify-omega.vercel.app/"
   },
   {
@@ -32,7 +32,7 @@ const projects: Project[] = [
     technologies: ["React.js", "Express.js", "Node.js", "MongoDB", "JWT", "TailwindCSS", "WebSocket", "Multer"],
     image: "https://via.placeholder.com/600x400?text=Movix",
     preview: "https://via.placeholder.com/800x600?text=Movix+Preview",
-    github: "https://github.com/akash7233",
+    github: "https://github.com/akash7233/movix",
     live: "https://movix-two-iota.vercel.app/"
   }
 ];

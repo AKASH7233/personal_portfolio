@@ -27,14 +27,14 @@ const experiences: Experience[] = [
     ]
   },
   {
-    role: "Frontend Developer Intern",
+    role: "Technical Member",
     company: "RCTCET",
     location: "Mumbai, India",
     period: "Aug 2023 – July 2024",
-    technologies: ["HTML5", "CSS3", "React.js (v16)", "TailwindCSS", "Shadcn"],
+    technologies: ["HTML5", "CSS3", "React.js (v16)", "TailwindCSS", "Shadcn", "Wix"],
     achievements: [
-      "Led a team of 4 to design and deploy a club website, increasing member engagement by 20%",
-      "Utilized React.js and TailwindCSS to improve website responsiveness by 30%, ensuring cross-device compatibility"
+      "Created About Us Page and Events Page",
+      "Coordinated tech events for 200+ attendees, boosting community engagement"
     ]
   }
 ];
