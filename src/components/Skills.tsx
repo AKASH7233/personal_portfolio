@@ -66,7 +66,7 @@ export function Skills() {
               <div 
                 className="flex animate-slow-slide-left-to-right"
                 style={{
-                  animationDuration: '60s',
+                  animationDuration: '20s',
                   animationIterationCount: 'infinite',
                   animationPlayState: 'running'
                 }}
@@ -98,23 +98,32 @@ export function Skills() {
                     <div className="font-medium">{skill.name}</div>
                   </div>
                 ))}
+                {programmingSkills.map((skill, index) => (
+                  <div
+                    key={`prog-${index}`}
+                    className="flex-shrink-0 w-32 md:w-40 mx-4 p-4 bg-card rounded-lg shadow-sm border-2 border-transparent hover:border-aqua transition-all duration-300"
+                  >
+                    <div className="text-3xl mb-2">{skill.icon}</div>
+                    <div className="font-medium">{skill.name}</div>
+                  </div>
+                ))}
               </div>
             </div>
           </div>
           
           {/* Tools & Databases */}
           <div className="relative">
-            <h3 className="text-xl font-medium mb-6">Tools & Databases</h3>
+            <h3 className="text-xl font-medium mb-6">Tools Skills</h3>
             
-            {/* Second row - right to left */}
+            {/* First row - left to right */}
             <div 
-              ref={row2Ref}
+              ref={row1Ref}
               className="flex overflow-hidden"
             >
               <div 
                 className="flex animate-slow-slide-right-to-left"
                 style={{
-                  animationDuration: '60s',
+                  animationDuration: '20s',
                   animationIterationCount: 'infinite',
                   animationPlayState: 'running'
                 }}
@@ -129,7 +138,7 @@ export function Skills() {
               >
                 {toolsSkills.map((skill, index) => (
                   <div
-                    key={`tool-${index}`}
+                    key={`prog-${index}`}
                     className="flex-shrink-0 w-32 md:w-40 mx-4 p-4 bg-card rounded-lg shadow-sm border-2 border-transparent hover:border-aqua transition-all duration-300"
                   >
                     <div className="text-3xl mb-2">{skill.icon}</div>
@@ -139,7 +148,16 @@ export function Skills() {
                 {/* Repeat for seamless infinite scroll */}
                 {toolsSkills.map((skill, index) => (
                   <div
-                    key={`tool-repeat-${index}`}
+                    key={`prog-repeat-${index}`}
+                    className="flex-shrink-0 w-32 md:w-40 mx-4 p-4 bg-card rounded-lg shadow-sm border-2 border-transparent hover:border-aqua transition-all duration-300"
+                  >
+                    <div className="text-3xl mb-2">{skill.icon}</div>
+                    <div className="font-medium">{skill.name}</div>
+                  </div>
+                ))}
+                {toolsSkills.map((skill, index) => (
+                  <div
+                    key={`prog-${index}`}
                     className="flex-shrink-0 w-32 md:w-40 mx-4 p-4 bg-card rounded-lg shadow-sm border-2 border-transparent hover:border-aqua transition-all duration-300"
                   >
                     <div className="text-3xl mb-2">{skill.icon}</div>
