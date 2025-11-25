@@ -38,10 +38,13 @@ export function About() {
       try {
         const data = await fetchFromAPI(API_ENDPOINTS.ABOUT);
         
-        // Compare bio quality: use dynamic if it's substantial
-        if (data.bio && data.bio.length > 50) {
+        // Always use dynamic data if available, regardless of length
+        if (data && data.bio) {
           setAboutData(data);
           setUseDynamic(true);
+          console.log('📝 Using dynamic about data:', { bioLength: data.bio.length });
+        } else {
+          console.log('📝 No dynamic bio data available, using static fallback');
         }
       } catch (err) {
         console.error('Error loading about data:', err);

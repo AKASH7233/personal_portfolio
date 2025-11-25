@@ -42,14 +42,23 @@ export default async function handler(req, res) {
         easySolved: 50,
         mediumSolved: 80,
         hardSolved: 20,
-        easyTotal: 915,
-        mediumTotal: 1956,
-        hardTotal: 887,
+        easyTotal: 829,
+        mediumTotal: 1740,
+        hardTotal: 753,
         ranking: 50000,
         acceptanceRate: 75,
         submissionCalendar: generateMockSubmissionCalendar(),
         badges: {},
         streak: { current: 5, longest: 15 },
+        contestData: {
+          contestAttend: 5,
+          contestRating: 1650,
+          contestGlobalRanking: 25000,
+          contestTopPercentage: 15.5,
+          totalParticipants: 150000,
+          contestBadges: { name: "Knight" },
+          contestParticipation: []
+        },
         fetchedAt: new Date().toISOString()
       });
     }
@@ -70,14 +79,23 @@ export default async function handler(req, res) {
         easySolved: 50,
         mediumSolved: 80,
         hardSolved: 20,
-        easyTotal: 915,
-        mediumTotal: 1956,
-        hardTotal: 887,
+        easyTotal: 829,
+        mediumTotal: 1740,
+        hardTotal: 753,
         ranking: 50000,
         acceptanceRate: 75,
         submissionCalendar: generateMockSubmissionCalendar(),
         badges: {},
         streak: { current: 5, longest: 15 },
+        contestData: {
+          contestAttend: 5,
+          contestRating: 1650,
+          contestGlobalRanking: 25000,
+          contestTopPercentage: 15.5,
+          totalParticipants: 150000,
+          contestBadges: { name: "Knight" },
+          contestParticipation: []
+        },
         fetchedAt: new Date().toISOString()
       });
     }
@@ -105,15 +123,24 @@ export default async function handler(req, res) {
       ranking: data.ranking,
       totalSolved: data.totalSolved || 0,
       easySolved: data.easySolved || 0,
-      easyTotal: data.easyTotal || 0,
+      easyTotal: data.easyTotal || 829,
       mediumSolved: data.mediumSolved || 0,
-      mediumTotal: data.mediumTotal || 0,
+      mediumTotal: data.mediumTotal || 1740,
       hardSolved: data.hardSolved || 0,
-      hardTotal: data.hardTotal || 0,
+      hardTotal: data.hardTotal || 753,
       acceptanceRate: data.acceptanceRate || 0,
       submissionCalendar: submissionCalendar,
       badges: data.badges || {},
       streak: data.streak || { current: 0, longest: 0 },
+      contestData: data.contestData || {
+        contestAttend: data.contestAttend || 0,
+        contestRating: data.contestRating || 1500,
+        contestGlobalRanking: data.contestGlobalRanking || 0,
+        contestTopPercentage: data.contestTopPercentage || 0,
+        totalParticipants: data.totalParticipants || 0,
+        contestBadges: data.contestBadges || { name: "Novice" },
+        contestParticipation: data.contestParticipation || []
+      },
       fetchedAt: data.fetchedAt
     });
   } catch (error) {
@@ -125,14 +152,23 @@ export default async function handler(req, res) {
       easySolved: 50,
       mediumSolved: 80,
       hardSolved: 20,
-      easyTotal: 915,
-      mediumTotal: 1956,
-      hardTotal: 887,
+      easyTotal: 829,
+      mediumTotal: 1740,
+      hardTotal: 753,
       ranking: 50000,
       acceptanceRate: 75,
       submissionCalendar: generateMockSubmissionCalendar(),
       badges: {},
       streak: { current: 5, longest: 15 },
+      contestData: {
+        contestAttend: 5,
+        contestRating: 1650,
+        contestGlobalRanking: 25000,
+        contestTopPercentage: 15.5,
+        totalParticipants: 150000,
+        contestBadges: { name: "Knight" },
+        contestParticipation: []
+      },
       fetchedAt: new Date().toISOString()
     });
   }

@@ -50,6 +50,14 @@ export function LeetCodeProfile({ data }: LeetCodeProfileProps) {
     longestStreak: 0,
   };
 
+  // Add debugging info
+  console.log('📊 LeetCodeProfile received data:', {
+    hasData: !!data,
+    dataKeys: data ? Object.keys(data) : [],
+    hasContestData: !!(data?.contestData),
+    contestDataKeys: data?.contestData ? Object.keys(data.contestData) : []
+  });
+
   const leetcodeData = data || defaultData;
   const isDataAvailable = !!data;
 
