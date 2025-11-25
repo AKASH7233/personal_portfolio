@@ -1,48 +1,44 @@
 
-import { Award, BadgeCheck, Trophy } from "lucide-react";
+import { useState, useEffect } from "react";
+import { Award, Sparkles } from "lucide-react";
 import useIntersectionObserver from "@/hooks/useIntersectionObserver";
 import { cn } from "@/lib/utils";
-import { Button } from "@/components/ui/button";
+import { fetchFromAPI, API_ENDPOINTS } from "@/lib/api";
+import { Skeleton } from "@/components/ui/skeleton";
+import { Alert, AlertDescription } from "@/components/ui/alert";
 
-interface Achievement {
-  title: string;
-  description: string;
-  icon: React.ReactNode;
-  link?: string;
+interface AchievementsData {
+  summary: string;
+  bulletPoints: string[];
+  bio: string;
+  generatedAt: string;
 }
-
-const achievements: Achievement[] = [
-  {
-    title: "Winner of Finothon",
-    description: "Organized by Wealthify.me",
-    icon: <Trophy className="h-10 w-10 text-aqua" />,
-    link: "https://drive.google.com/file/d/1XGk6BOzxrlKXGlLfcPSx6m75fe92yn3I/view?usp=sharing" // Certificate link would go here
-  },
-  {
-    title: "300+ DSA Problems",
-    description: "Solved across LeetCode and other platforms",
-    icon: <BadgeCheck className="h-10 w-10 text-aqua" />,
-    link: "https://leetcode.com/u/akashyadv7233" // LeetCode profile
-  },
-  {
-    title: "Top 8 in Hackquinox",
-    description: "Organized by F.R. C. Rodriques Institute of Technology, Vashi",
-    icon: <Trophy className="h-10 w-10 text-aqua" />,
-    link: "https://drive.google.com/file/d/1WrWWajStDvOksHaBuewu7flntopfw4HO/view?usp=sharing" // Certificate link would go here
-  },
-  {
-    title: "Technical Member @ CSI TCET",
-    description: "Developed club website, Created About Us Page and Events Page",
-    icon: <Award className="h-10 w-10 text-aqua" />,
-    link: "https://drive.google.com/file/d/1nuPRuuxzdKAs1bHs22H1rHbYkZsjdBzr/view?usp=sharing"
-  }
-];
 
 export function Achievements() {
   const { elementRef, isIntersecting } = useIntersectionObserver({
     threshold: 0.1,
     rootMargin: "-100px",
   });
+
+  const [data, setData] = useState<AchievementsData | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    async function loadAchievements() {
+      try {
+        const achievementsData = await fetchFromAPI(API_ENDPOINTS.ACHIEVEMENTS);
+        setData(achievementsData);
+      } catch (err) {
+        console.error('Error loading achievements:', err);
+        setError('Failed to load achievements');
+      } finally {
+        setLoading(false);
+      }
+    }
+
+    loadAchievements();
+  }, []);
 
   return (
     <section
@@ -54,41 +50,67 @@ export function Achievements() {
       )}
     >
       <div className="container mx-auto px-4 md:px-6">
-        <h2 className="section-title">Achievements</h2>
-        
-        <div className="mt-12 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-          {achievements.map((achievement, index) => (
-            <div 
-              key={index}
-              className={cn(
-                "bg-card rounded-lg p-6 shadow-md hover:shadow-lg transition-all duration-500 border-2 hover:border-aqua border-transparent",
-                "transform hover:-translate-y-2 flex flex-col items-center text-center",
-                isIntersecting ? `animate-fade-in-up [animation-delay:${index * 0.15}s]` : "opacity-0"
-              )}
-            >
-              <div className="mb-4">
-                {achievement.icon}
-              </div>
-              
-              <h3 className="text-xl font-semibold mb-2">{achievement.title}</h3>
-              <p className="text-foreground/80 mb-4">{achievement.description}</p>
-              
-              {achievement.link && (
-                <div className="mt-auto">
-                  <Button 
-                    asChild
-                    variant="link"
-                    className="text-aqua p-0 h-auto"
-                  >
-                    <a href={achievement.link} target="_blank" rel="noopener noreferrer">
-                      {achievement.link.includes("leetcode") ? "View LeetCode Profile" : "View Certificate"}
-                    </a>
-                  </Button>
-                </div>
-              )}
-            </div>
-          ))}
+        <div className="flex items-center justify-center gap-2 mb-4">
+          <h2 className="section-title">AI-Generated Achievements</h2>
+          <Sparkles className="h-6 w-6 text-aqua animate-pulse" />
         </div>
+        
+        {loading ? (
+          <div className="space-y-6 max-w-4xl mx-auto">
+            <Skeleton className="h-24 w-full" />
+            <div className="space-y-3">
+              {[...Array(4)].map((_, i) => (
+                <Skeleton key={i} className="h-16 w-full" />
+              ))}
+            </div>
+          </div>
+        ) : error ? (
+          <Alert variant="destructive" className="max-w-4xl mx-auto">
+            <AlertDescription>{error}</AlertDescription>
+          </Alert>
+        ) : data ? (
+          <div className="mt-12 max-w-4xl mx-auto space-y-8">
+            {/* Summary */}
+            <div className={cn(
+              "bg-card rounded-lg p-8 shadow-lg border-2 border-aqua/20",
+              isIntersecting ? "animate-fade-in-up" : "opacity-0"
+            )}>
+              <div className="flex items-start gap-4">
+                <Award className="h-8 w-8 text-aqua shrink-0 mt-1" />
+                <div>
+                  <h3 className="text-xl font-semibold mb-3">Professional Summary</h3>
+                  <p className="text-foreground/90 leading-relaxed">{data.summary}</p>
+                </div>
+              </div>
+            </div>
+
+            {/* Bullet Points */}
+            <div className={cn(
+              "bg-card rounded-lg p-8 shadow-lg",
+              isIntersecting ? "animate-fade-in-up [animation-delay:0.2s]" : "opacity-0"
+            )}>
+              <h3 className="text-xl font-semibold mb-6">Key Achievements</h3>
+              <ul className="space-y-4">
+                {data.bulletPoints.map((point, index) => (
+                  <li 
+                    key={index}
+                    className="flex gap-3 items-start"
+                  >
+                    <span className="text-aqua mt-1.5 shrink-0">▸</span>
+                    <span className="text-foreground/90">{point}</span>
+                  </li>
+                ))}
+              </ul>
+            </div>
+
+            {/* Generation timestamp */}
+            <p className="text-center text-sm text-muted-foreground">
+              Auto-generated by AI • Last updated: {data.generatedAt && !isNaN(new Date(data.generatedAt).getTime()) 
+                ? new Date(data.generatedAt).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })
+                : 'Recently'}
+            </p>
+          </div>
+        ) : null}
       </div>
     </section>
   );

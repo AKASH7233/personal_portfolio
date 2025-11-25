@@ -1,0 +1,51 @@
+name: Auto-Update Portfolio Data
+
+on:
+  schedule:
+    # Run every day at 2 AM UTC
+    - cron: '0 2 * * *'
+  workflow_dispatch: # Allow manual trigger
+
+jobs:
+  update-data:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          
+      - name: Install dependencies
+        run: npm install
+        
+      - name: Run data sync
+        env:
+          GITHUB_USERNAME: ${{ secrets.GH_USERNAME }}
+          GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
+          LEETCODE_USERNAME: ${{ secrets.LEETCODE_USERNAME }}
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+          MONGODB_URI: ${{ secrets.MONGODB_URI }}
+        run: node automation/run-sync.js
+        
+      - name: Trigger deployment
+        if: success()
+        env:
+          DEPLOY_HOOK_URL: ${{ secrets.DEPLOY_HOOK_URL }}
+        run: |
+          if [ -n "$DEPLOY_HOOK_URL" ]; then
+            echo "Triggering deployment..."
+            curl -X POST "$DEPLOY_HOOK_URL"
+            echo "✅ Deployment triggered"
+          else
+            echo "⚠️ DEPLOY_HOOK_URL not set, skipping deployment trigger"
+          fi
+          
+      - name: Notify on failure
+        if: failure()
+        run: |
+          echo "❌ Portfolio data sync failed"
+          echo "Check the logs above for details"

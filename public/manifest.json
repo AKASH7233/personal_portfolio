@@ -1,0 +1,27 @@
+{
+  "name": "Akash Yadav - Full Stack Developer Portfolio",
+  "short_name": "Akash Yadav",
+  "description": "Professional portfolio of Akash Yadav - Full Stack Developer specializing in React.js, Node.js, MongoDB, and modern web technologies",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#0a0a0a",
+  "theme_color": "#00d9ff",
+  "orientation": "portrait-primary",
+  "icons": [
+    {
+      "src": "https://imgs.search.brave.com/sX0jrZy746crnAxdPhQYhd57ZoU4E_kRhDIUYkCFlbI/rs:fit:860:0:0:0/g:ce/aHR0cHM6Ly90My5m/dGNkbi5uZXQvanBn/LzA0LzMyLzI4LzA2/LzM2MF9GXzQzMjI4/MDYyNl84V1M2ZG9R/dlJ3cTFCRGNrNXZF/WW5KSkdEekFYY0V4/Yi5qcGc",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "https://imgs.search.brave.com/sX0jrZy746crnAxdPhQYhd57ZoU4E_kRhDIUYkCFlbI/rs:fit:860:0:0:0/g:ce/aHR0cHM6Ly90My5m/dGNkbi5uZXQvanBn/LzA0LzMyLzI4LzA2/LzM2MF9GXzQzMjI4/MDYyNl84V1M2ZG9R/dlJ3cTFCRGNrNXZF/WW5KSkdEekFYY0V4/Yi5qcGc",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ],
+  "categories": ["portfolio", "developer", "technology"],
+  "lang": "en-US",
+  "dir": "ltr"
+}

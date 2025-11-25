@@ -16,7 +16,7 @@ const educationItems: EducationItem[] = [
   {
     institution: "Thakur College of Engineering & Technology",
     degree: "Bachelor of Engineering in Computer Engineering",
-    percentage: "CGPA: 9.20",
+    percentage: "CGPA: 9",
     period: "Sep 2022 – Present",
     description: "Pursuing undergraduate degree with focus on computer science fundamentals, algorithms, and software engineering practices.",
     isRight: false,

@@ -25,3 +25,12 @@ dist-ssr
 
 .env
 .env.*
+!.env.example
+
+# MongoDB local data
+data/
+*.mongodb
+
+# API keys and secrets (backup)
+secrets/
+credentials/
