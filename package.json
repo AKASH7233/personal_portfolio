@@ -1,8 +1,33 @@
 {
-  "name": "vite_react_shadcn_ts",
+  "name": "akash-portfolio",
   "private": true,
-  "version": "0.0.0",
+  "version": "2.0.0",
   "type": "module",
+  "description": "Modern portfolio website for Akash Yadav - Full Stack Developer specializing in React, Node.js, MongoDB, and TypeScript",
+  "keywords": [
+    "portfolio",
+    "react", 
+    "typescript",
+    "full-stack",
+    "developer",
+    "akash-yadav",
+    "web-development",
+    "leetcode",
+    "mongodb",
+    "nodejs",
+    "nextjs",
+    "tailwind"
+  ],
+  "author": {
+    "name": "Akash Yadav",
+    "email": "akashyadv7233@gmail.com",
+    "url": "https://akash-portfolio-sage.vercel.app"
+  },
+  "homepage": "https://akash-portfolio-sage.vercel.app",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/AKASH7233/personal_portfolio"
+  },
   "scripts": {
     "dev": "vite",
     "build": "vite build",
@@ -61,6 +86,7 @@
     "react": "^18.3.1",
     "react-day-picker": "^8.10.1",
     "react-dom": "^18.3.1",
+    "react-helmet-async": "^2.0.5",
     "react-hook-form": "^7.53.0",
     "react-markdown": "^10.1.0",
     "react-resizable-panels": "^2.1.3",

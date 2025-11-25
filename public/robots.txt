@@ -10,5 +10,22 @@ Allow: /
 User-agent: facebookexternalhit
 Allow: /
 
+User-agent: LinkedInBot
+Allow: /
+
 User-agent: *
 Allow: /
+
+Sitemap: https://akash-portfolio-sage.vercel.app/api/sitemap
+
+# Block access to admin areas
+Disallow: /admin/
+Disallow: /_next/
+Disallow: /node_modules/
+
+# Allow important SEO files
+Allow: /api/sitemap
+Allow: /api/robots
+
+# Cache directives
+Crawl-delay: 1

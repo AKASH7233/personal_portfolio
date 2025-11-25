@@ -1,6 +1,7 @@
 
 import { useEffect, useState } from "react";
 import { API_ENDPOINTS, fetchFromAPI } from "@/lib/api";
+import SEOHead from "@/components/SEOHead";
 import NavBar from "@/components/NavBar";
 import Hero from "@/components/Hero";
 import About from "@/components/About";
@@ -65,6 +66,25 @@ const Index = () => {
 
   return (
     <div className="min-h-screen bg-background text-foreground">
+      <SEOHead
+        title="Akash Yadav | Full Stack Developer | React, Node.js, MongoDB Expert"
+        description="Experienced Full Stack Developer specializing in React.js, Next.js, Node.js, MongoDB, and TypeScript. Building innovative web applications with LeetCode problem-solving skills. View my portfolio, projects, and achievements."
+        keywords={[
+          "Connectify",
+          "IntellibudgetAI", 
+          "TravelGuide AI",
+          "TeamMate",
+          "Netflix Clone",
+          "MERN Stack Projects",
+          "LeetCode Solutions",
+          "Problem Solving",
+          "Data Structures",
+          "Algorithms",
+          "Competitive Programming",
+          "GitHub AKASH7233"
+        ]}
+        url="https://akash-portfolio-sage.vercel.app"
+      />
       <NavBar />
       <main>
         <Hero />
