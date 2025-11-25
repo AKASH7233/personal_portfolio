@@ -70,7 +70,7 @@ const Index = () => {
             </div>
             
             {/* Profile Cards */}
-            {leetcodeData && <LeetCodeProfile data={leetcodeData} />}
+            <LeetCodeProfile data={leetcodeData} />
 
             {/* Contest Details */}
             {leetcodeData?.contestData && (
