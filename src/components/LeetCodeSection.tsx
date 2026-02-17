@@ -121,6 +121,19 @@ export default function LeetCodeSection() {
   const [contest, setContest] = useState<LeetCodeContest | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [heatmapError, setHeatmapError] = useState(false);
+
+  // Detect site theme for leetcard
+  const [isDark, setIsDark] = useState(() =>
+    typeof document !== "undefined" ? document.documentElement.classList.contains("dark") : true
+  );
+  useEffect(() => {
+    const observer = new MutationObserver(() => {
+      setIsDark(document.documentElement.classList.contains("dark"));
+    });
+    observer.observe(document.documentElement, { attributes: true, attributeFilter: ["class"] });
+    return () => observer.disconnect();
+  }, []);
 
   useEffect(() => {
     async function load() {
@@ -326,19 +339,27 @@ export default function LeetCodeSection() {
         </div>
 
         {/* ── LeetCard heatmap embed (bottom) ──────────────────── */}
-        <Card className="bg-card border-border">
-          <CardContent className="p-4 md:p-6">
-            <p className="text-sm text-muted-foreground mb-3">Submission Activity</p>
-            <div className="overflow-x-auto">
-              <img
-                src={`https://leetcard.jacoblin.cool/${LEETCODE_USERNAME}?theme=dark&ext=heatmap`}
-                alt={`LeetCode submission heatmap for ${LEETCODE_USERNAME} showing daily coding activity`}
-                className="w-full rounded -mt-56"
-                loading="lazy"
-              />
-            </div>
-          </CardContent>
-        </Card>
+        {!heatmapError && (
+          <Card className="bg-card border-border">
+            <CardContent className="p-4 md:p-6">
+              <p className="text-sm text-muted-foreground mb-3">Submission Activity</p>
+              <div className="overflow-hidden rounded">
+                {/* The leetcard ext=heatmap image includes stats on top + heatmap below.
+                    We crop the top ~55% (stats) away with negative margin + overflow hidden
+                    so only the heatmap portion is visible. */}
+                <img
+                  key={isDark ? "dark" : "light"}
+                  src={`https://leetcard.jacoblin.cool/${LEETCODE_USERNAME}?theme=${isDark ? "dark" : "light"}&font=Noto%20Sans&ext=heatmap`}
+                  alt={`LeetCode submission heatmap for ${LEETCODE_USERNAME} showing daily coding activity`}
+                  className="w-full select-none"
+                  style={{ marginTop: "-45%" }}
+                  loading="lazy"
+                  onError={() => setHeatmapError(true)}
+                />
+              </div>
+            </CardContent>
+          </Card>
+        )}
       </div>
     </section>
   );
