@@ -23,8 +23,41 @@ interface PortfolioData {
   pinned?: any[];
 }
 
+/* ── localStorage cache for chatbot data ─────────────────────── */
+const CHATBOT_CACHE_KEY = "chatbot-data-cache";
+const CHATBOT_CACHE_TTL = 1000 * 60 * 60; // 1 hour
+
+function readChatbotCache(): PortfolioData | null {
+  try {
+    const raw = localStorage.getItem(CHATBOT_CACHE_KEY);
+    if (!raw) return null;
+    const { data, ts } = JSON.parse(raw);
+    if (Date.now() - ts < CHATBOT_CACHE_TTL) return data;
+  } catch { /* ignore */ }
+  return null;
+}
+
+function readStaleChatbotCache(): PortfolioData | null {
+  try {
+    const raw = localStorage.getItem(CHATBOT_CACHE_KEY);
+    if (!raw) return null;
+    return JSON.parse(raw).data;
+  } catch { /* ignore */ }
+  return null;
+}
+
+function writeChatbotCache(data: PortfolioData) {
+  try {
+    localStorage.setItem(CHATBOT_CACHE_KEY, JSON.stringify({ data, ts: Date.now() }));
+  } catch { /* ignore */ }
+}
+
 /* ── fetch real data from the same APIs the sections use ─────── */
 async function fetchPortfolioData(): Promise<PortfolioData> {
+  // Return fresh cache if available
+  const cached = readChatbotCache();
+  if (cached) return cached;
+
   const data: PortfolioData = {};
 
   try {
@@ -47,7 +80,14 @@ async function fetchPortfolioData(): Promise<PortfolioData> {
       fetch(`${LEETCODE_API}/${LEETCODE_USERNAME}/contest`).then(r => r.ok ? r.json() : null),
     ]);
     data.leetcode = { profile, solved, contest };
-  } catch { /* skip */ }
+  } catch {
+    // If LeetCode API fails (429 etc.), try reusing stale cache for just that part
+    const stale = readStaleChatbotCache();
+    if (stale?.leetcode) data.leetcode = stale.leetcode;
+  }
+
+  // Only write cache if we have some data
+  if (data.github || data.leetcode) writeChatbotCache(data);
 
   return data;
 }

@@ -36,13 +36,70 @@ interface LeetCodeContest {
   contestBadge: string | null;
 }
 
-/* ── fetch all data ───────────────────────────────────────────── */
+/* ── cache helpers ─────────────────────────────────────────────── */
+const CACHE_KEY = "lc-data-cache";
+const CACHE_TTL = 1000 * 60 * 60; // 1 hour
+
+interface CachedData {
+  profile: LeetCodeProfile;
+  stats: LeetCodeStats;
+  contest: LeetCodeContest;
+  ts: number;
+}
+
+function readCache(): CachedData | null {
+  try {
+    const raw = localStorage.getItem(CACHE_KEY);
+    if (!raw) return null;
+    const cached: CachedData = JSON.parse(raw);
+    if (Date.now() - cached.ts < CACHE_TTL) return cached;
+  } catch { /* ignore */ }
+  return null;
+}
+
+function writeCache(data: Omit<CachedData, "ts">) {
+  try {
+    localStorage.setItem(CACHE_KEY, JSON.stringify({ ...data, ts: Date.now() }));
+  } catch { /* ignore */ }
+}
+
+function readStaleCache(): CachedData | null {
+  try {
+    const raw = localStorage.getItem(CACHE_KEY);
+    if (!raw) return null;
+    return JSON.parse(raw);
+  } catch { /* ignore */ }
+  return null;
+}
+
+/* ── fetch with single-retry on 429 ──────────────────────────── */
+async function fetchWithRetry(url: string, retries = 1): Promise<Response> {
+  const res = await fetch(url);
+  if (res.status === 429 && retries > 0) {
+    await new Promise(r => setTimeout(r, 2000));
+    return fetchWithRetry(url, retries - 1);
+  }
+  return res;
+}
+
+/* ── fetch all data (with cache + retry + stale fallback) ────── */
 async function fetchLeetCodeData(username: string) {
+  // Return fresh cache if available
+  const cached = readCache();
+  if (cached) return { profile: cached.profile, stats: cached.stats, contest: cached.contest };
+
   const [profileRes, solvedRes, contestRes] = await Promise.all([
-    fetch(`${API_BASE}/${username}`),
-    fetch(`${API_BASE}/${username}/solved`),
-    fetch(`${API_BASE}/${username}/contest`),
+    fetchWithRetry(`${API_BASE}/${username}`),
+    fetchWithRetry(`${API_BASE}/${username}/solved`),
+    fetchWithRetry(`${API_BASE}/${username}/contest`),
   ]);
+
+  // If any response is a 429, try stale cache before failing
+  if (!profileRes.ok || !solvedRes.ok || !contestRes.ok) {
+    const stale = readStaleCache();
+    if (stale) return { profile: stale.profile, stats: stale.stats, contest: stale.contest };
+    throw new Error("LeetCode API rate limited");
+  }
 
   const profileData = await profileRes.json();
   const solvedData = await solvedRes.json();
@@ -78,6 +135,7 @@ async function fetchLeetCodeData(username: string) {
     contestBadge: contestData.contestBadges?.name ?? null,
   };
 
+  writeCache({ profile, stats, contest });
   return { profile, stats, contest };
 }
 
