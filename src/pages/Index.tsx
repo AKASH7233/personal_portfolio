@@ -49,13 +49,13 @@ const Index = () => {
       <main>
         <Hero />
         <About />
-        <Education />
         <Skills />
         <Experience />
         <Suspense fallback={<div className="py-24 text-center text-muted-foreground">Loading…</div>}>
           <GitHubProfile />
           <LeetCodeSection />
           <Achievements />
+        <Education />
         </Suspense>
         <Contact />
       </main>
