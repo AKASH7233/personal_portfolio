@@ -50,8 +50,8 @@ export function Achievements() {
       )}
     >
       <div className="container mx-auto px-4 md:px-6">
-        <div className="flex items-center justify-center gap-2 mb-4">
-          <Award className="h-7 w-7 text-aqua" />
+        <div className="">
+          {/* <Award className="h-7 w-7 text-aqua" /> */}
           <h2 className="section-title">Achievements</h2>
         </div>
         
