@@ -7,7 +7,13 @@ export default defineConfig({
   plugins: [react()],
   build:{
     rollupOptions:{
-      external:['mongoose']
+      external:['mongoose'],
+      output: {
+        manualChunks: {
+          vendor: ['react', 'react-dom', 'react-router-dom'],
+          ui: ['lucide-react', 'react-helmet-async'],
+        },
+      },
     }
   },
   resolve: {
