@@ -16,8 +16,8 @@ const navLinks: NavLink[] = [
   { name: "Experience", href: "#experience" },
   { name: "GitHub", href: "#github" },
   { name: "LeetCode", href: "#leetcode" },
-  { name: "Achievements", href: "#achievements" },
   { name: "Education", href: "#education" },
+  { name: "Achievements", href: "#achievements" },
   { name: "Contact", href: "#contact" },
 ];
 
