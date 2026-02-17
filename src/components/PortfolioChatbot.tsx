@@ -299,7 +299,7 @@ export function PortfolioChatbot() {
   const [input, setInput] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [portfolioData, setPortfolioData] = useState<PortfolioData>({});
-  const scrollRef = useRef<HTMLDivElement>(null);
+  const bottomRef = useRef<HTMLDivElement>(null);
 
   // Load real data on mount (same APIs as GitHub/LeetCode sections)
   useEffect(() => {
@@ -308,9 +308,7 @@ export function PortfolioChatbot() {
 
   // Auto-scroll to bottom
   useEffect(() => {
-    if (scrollRef.current) {
-      scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
-    }
+    bottomRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages]);
 
   // Welcome message
@@ -401,7 +399,7 @@ export function PortfolioChatbot() {
           </div>
 
           {/* Messages */}
-          <ScrollArea className="flex-1 p-4" ref={scrollRef}>
+          <ScrollArea className="flex-1 p-4">
             <div className="space-y-4">
               {messages.map((message) => (
                 <div
@@ -467,6 +465,7 @@ export function PortfolioChatbot() {
                   </div>
                 </div>
               )}
+              <div ref={bottomRef} />
             </div>
           </ScrollArea>
 
