@@ -1,6 +1,4 @@
-
-import { useEffect, useState } from "react";
-import { API_ENDPOINTS, fetchFromAPI } from "@/lib/api";
+import { useEffect, lazy, Suspense } from "react";
 import SEOHead from "@/components/SEOHead";
 import NavBar from "@/components/NavBar";
 import Hero from "@/components/Hero";
@@ -8,82 +6,44 @@ import About from "@/components/About";
 import Education from "@/components/Education";
 import Skills from "@/components/Skills";
 import Experience from "@/components/Experience";
-import Projects from "@/components/Projects";
-import Achievements from "@/components/Achievements";
-import LeetCodeStats from "@/components/LeetCodeStats";
-import { LeetCodeContest } from "@/components/LeetCodeContest";
-import { LeetCodeBadges } from "@/components/LeetCodeBadges";
-import { LeetCodeProfile } from "@/components/LeetCodeProfile";
 import Contact from "@/components/Contact";
 import Footer from "@/components/Footer";
 import { PortfolioChatbot } from "@/components/PortfolioChatbot";
 
+const GitHubProfile = lazy(() => import("@/components/GitHubProfile"));
+const LeetCodeSection = lazy(() => import("@/components/LeetCodeSection"));
+const Achievements = lazy(() => import("@/components/Achievements"));
+
 const Index = () => {
-  const [leetcodeData, setLeetcodeData] = useState<any>(null);
-
   useEffect(() => {
-    // Update the document title with SEO-optimized version
     document.title = "Akash Yadav | Full Stack Developer | React, Node.js, MongoDB Expert";
-    
-    // Check for user's theme preference
-    if (localStorage.theme === 'dark' || (!('theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
-      document.documentElement.classList.add('dark');
-    } else {
-      document.documentElement.classList.remove('dark');
-    }
 
-    // Fetch LeetCode data for contest section
-    async function loadLeetCodeData() {
-      try {
-        console.log('🔄 Fetching LeetCode data from:', API_ENDPOINTS.LEETCODE_STATS);
-        const data = await fetchFromAPI(API_ENDPOINTS.LEETCODE_STATS);
-        console.log('✅ LeetCode data received:', {
-          hasData: !!data,
-          dataKeys: data ? Object.keys(data) : [],
-          totalSolved: data?.totalSolved,
-          hasContestData: !!data?.contestData
-        });
-        setLeetcodeData(data);
-      } catch (err) {
-        console.error('❌ Error loading LeetCode data:', err);
-        // Set some default data so components still render
-        setLeetcodeData({
-          username: 'fallback',
-          totalSolved: 100,
-          easySolved: 30,
-          mediumSolved: 50,
-          hardSolved: 20,
-          easyTotal: 829,
-          mediumTotal: 1740,
-          hardTotal: 753,
-          ranking: 0,
-          streak: 0
-        });
-      }
+    if (
+      localStorage.theme === "dark" ||
+      (!("theme" in localStorage) && window.matchMedia("(prefers-color-scheme: dark)").matches)
+    ) {
+      document.documentElement.classList.add("dark");
+    } else {
+      document.documentElement.classList.remove("dark");
     }
-    loadLeetCodeData();
   }, []);
 
   return (
     <div className="min-h-screen bg-background text-foreground">
       <SEOHead
         title="Akash Yadav | Full Stack Developer | React, Node.js, MongoDB Expert"
-        description="Experienced Full Stack Developer specializing in React.js, Next.js, Node.js, MongoDB, and TypeScript. Building innovative web applications with LeetCode problem-solving skills. View my portfolio, projects, and achievements."
+        description="Experienced Full Stack Developer specializing in React.js, Next.js, Node.js, MongoDB, and TypeScript. 627+ LeetCode problems solved. View my portfolio, projects, and achievements."
         keywords={[
-          "Connectify",
-          "IntellibudgetAI", 
-          "TravelGuide AI",
-          "TeamMate",
-          "Netflix Clone",
-          "MERN Stack Projects",
-          "LeetCode Solutions",
-          "Problem Solving",
-          "Data Structures",
-          "Algorithms",
+          "Akash Yadav",
+          "Full Stack Developer",
+          "MERN Stack",
+          "React.js",
+          "Node.js",
+          "LeetCode",
+          "GitHub AKASH7233",
           "Competitive Programming",
-          "GitHub AKASH7233"
         ]}
-        url="https://akash-portfolio-sage.vercel.app"
+        url="https://akashyadav-one.vercel.app"
       />
       <NavBar />
       <main>
@@ -92,41 +52,14 @@ const Index = () => {
         <Education />
         <Skills />
         <Experience />
-        <Projects />
-        
-        {/* LeetCode Section */}
-        <section id="leetcode" className="py-16 md:py-24 bg-muted/50">
-          <div className="container mx-auto px-4 md:px-6 space-y-12">
-            <div className="flex items-center justify-between">
-              <h2 className="section-title">Problem Solving & Competitive Programming</h2>
-              <a 
-                href="https://leetcode.com/u/akashyadv7233" 
-                target="_blank" 
-                rel="noopener noreferrer"
-                className="text-sm text-aqua hover:underline flex items-center gap-1"
-              >
-                View Profile →
-              </a>
-            </div>
-            
-            {/* Profile Cards */}
-            <LeetCodeProfile data={leetcodeData} />
-
-            {/* Contest Details */}
-            {leetcodeData?.contestData && (
-              <div className="mt-8">
-                <LeetCodeContest contestData={leetcodeData.contestData} />
-              </div>
-            )}
-          </div>
-        </section>
-        
-        <Achievements />
+        <Suspense fallback={<div className="py-24 text-center text-muted-foreground">Loading…</div>}>
+          <GitHubProfile />
+          <LeetCodeSection />
+          <Achievements />
+        </Suspense>
         <Contact />
       </main>
       <Footer />
-      
-      {/* AI Chatbot */}
       <PortfolioChatbot />
     </div>
   );
