@@ -35,7 +35,7 @@ export const mockGitHubRepos = {
       name: "personal_portfolio",
       description: "Modern personal portfolio website showcasing projects, skills, and achievements with responsive design and dark mode support.",
       htmlUrl: "https://github.com/AKASH7233/personal_portfolio",
-      homepage: "https://akash-portfolio-sage.vercel.app",
+      homepage: "https://akashyadav-one.vercel.app",
       language: "TypeScript",
       stars: 0,
       forks: 0,
