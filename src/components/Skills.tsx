@@ -1,142 +1,75 @@
 
-import { useRef, useState, useEffect } from 'react';
+import { useRef } from 'react';
 import useIntersectionObserver from "@/hooks/useIntersectionObserver";
 import { cn } from "@/lib/utils";
-import { fetchFromAPI, API_ENDPOINTS } from "@/lib/api";
-import { Skeleton } from "@/components/ui/skeleton";
 
-interface Skill {
+const DI = "https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons";
+const SI = "https://cdn.simpleicons.org";
+
+interface SkillItem {
   name: string;
   icon: string;
-  level?: string;
-  proficiency?: number;
+  darkInvert?: boolean;
 }
 
-// Icon mappings for common technologies
-const iconMap: Record<string, string> = {
-  'JavaScript': '⚡',
-  'TypeScript': '🔷',
-  'Python': '🐍',
-  'Java': '☕',
-  'HTML': '🌐',
-  'CSS': '🎨',
-  'SCSS': '🎨',
-  'React': '⚛️',
-  'React Js': '⚛️',
-  'Node': '🟢',
-  'Node Js': '🟢',
-  'Next': '▲',
-  'Next Js': '▲',
-  'MongoDB': '🍃',
-  'Express': '🚂',
-  'Express Js': '🚂',
-  'Git': '🔄',
-  'Docker': '🐳',
-  'Kubernetes': '☸️',
-  'Tailwind': '💨',
-  'Tailwindcss': '💨',
-  'Redux': '🔄',
-  'Socket': '🔌',
-  'Socket Io': '🔌',
-  'WebRTC': '📱',
-  'JWT': '🔑',
-  'GraphQL': '◉',
-  'REST': '🔗',
-  'API': '🔗',
-  'PostgreSQL': '🐘',
-  'MySQL': '🐬',
-  'Redis': '🔴',
-  'AWS': '☁️',
-  'Azure': '☁️',
-  'Firebase': '🔥',
-  'Vercel': '▲',
-  'Webpack': '📦',
-  'Vite': '⚡',
-  'Jest': '🃏',
-  'Cypress': '🌳',
-};
-
-const getIcon = (skillName: string): string => {
-  return iconMap[skillName] || iconMap[skillName.replace(/\s+/g, '')] || '⭐';
-};
-
-// Fallback static skills
-const fallbackProgrammingSkills: Skill[] = [
-  { name: "JavaScript", icon: "⚡" },
-  { name: "TypeScript", icon: "🔷" },
-  { name: "Python", icon: "🐍" },
-  { name: "React.js", icon: "⚛️" },
-  { name: "Node.js", icon: "🟢" },
-  { name: "Next.js", icon: "▲" },
-  { name: "MongoDB", icon: "🍃" },
-  { name: "Express.js", icon: "🚂" },
+const programmingSkills: SkillItem[] = [
+  { name: "Java", icon: `${DI}/java/java-original.svg` },
+  { name: "JavaScript", icon: `${DI}/javascript/javascript-original.svg` },
+  { name: "TypeScript", icon: `${DI}/typescript/typescript-original.svg` },
+  { name: "Python", icon: `${DI}/python/python-original.svg` },
+  { name: "React.js", icon: `${DI}/react/react-original.svg` },
+  { name: "Next.js", icon: `${DI}/nextjs/nextjs-original.svg`, darkInvert: true },
+  { name: "Node.js", icon: `${DI}/nodejs/nodejs-original.svg` },
+  { name: "Express.js", icon: `${DI}/express/express-original.svg`, darkInvert: true },
+  { name: "Spring Boot", icon: `${DI}/spring/spring-original.svg` },
+  { name: "TailwindCSS", icon: `${DI}/tailwindcss/tailwindcss-original.svg` },
+  { name: "Redux", icon: `${DI}/redux/redux-original.svg` },
+  { name: "HTML5", icon: `${DI}/html5/html5-original.svg` },
+  { name: "CSS3", icon: `${DI}/css3/css3-original.svg` },
 ];
 
-const fallbackToolsSkills: Skill[] = [
-  { name: "Git", icon: "🔄" },
-  { name: "Webpack", icon: "📦" },
-  { name: "Socket.io", icon: "🔌" },
-  { name: "TailwindCSS", icon: "💨" },
-  { name: "Redux", icon: "🔄" },
-  { name: "JWT", icon: "🔑" },
-  { name: "REST APIs", icon: "🔗" },
+const toolsSkills: SkillItem[] = [
+  { name: "Git", icon: `${DI}/git/git-original.svg` },
+  { name: "Docker", icon: `${DI}/docker/docker-original.svg` },
+  { name: "MongoDB", icon: `${DI}/mongodb/mongodb-original.svg` },
+  { name: "PostgreSQL", icon: `${DI}/postgresql/postgresql-original.svg` },
+  { name: "Redis", icon: `${DI}/redis/redis-original.svg` },
+  { name: "Kafka", icon: `${DI}/apachekafka/apachekafka-original.svg`, darkInvert: true },
+  { name: "MySQL", icon: `${DI}/mysql/mysql-original.svg`, darkInvert: true },
+  { name: "Prisma", icon: `${DI}/prisma/prisma-original.svg`, darkInvert: true },
+  { name: "Webpack", icon: `${DI}/webpack/webpack-original.svg` },
+  { name: "Socket.io", icon: `${DI}/socketio/socketio-original.svg`, darkInvert: true },
+  { name: "OpenAI", icon: "https://cdn.jsdelivr.net/npm/simple-icons@latest/icons/openai.svg", darkInvert: true },
+  { name: "LangGraph", icon: `${SI}/langchain/1C3C3C`, darkInvert: true },
+  { name: "RAG", icon: `${SI}/semanticscholar/1857B6` },
 ];
+
+function SkillCard({ skill, keyPrefix, index }: { skill: SkillItem; keyPrefix: string; index: number }) {
+  return (
+    <div
+      key={`${keyPrefix}-${index}`}
+      className="flex-shrink-0 w-28 md:w-36 mx-3 p-4 bg-card rounded-xl shadow-sm border-2 border-transparent hover:border-aqua transition-all duration-300 flex flex-col items-center gap-2"
+    >
+      <img
+        src={skill.icon}
+        alt={skill.name}
+        className={cn("w-10 h-10 object-contain", skill.darkInvert && "dark:invert")}
+        loading="lazy"
+      />
+      <span className="font-medium text-sm text-center leading-tight">{skill.name}</span>
+    </div>
+  );
+}
 
 export function Skills() {
   const { elementRef, isIntersecting } = useIntersectionObserver({
     threshold: 0.1,
     rootMargin: "-100px",
   });
-  
+
   const row1Ref = useRef<HTMLDivElement>(null);
   const row2Ref = useRef<HTMLDivElement>(null);
-  
-  const [programmingSkills, setProgrammingSkills] = useState<Skill[]>(fallbackProgrammingSkills);
-  const [toolsSkills, setToolsSkills] = useState<Skill[]>(fallbackToolsSkills);
-  const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    async function loadSkills() {
-      try {
-        const data = await fetchFromAPI(API_ENDPOINTS.SKILLS);
-        const skills = data.skills || {};
-
-        // Combine languages and frameworks for programming skills
-        const programming: Skill[] = [
-          ...(skills.languages || []),
-          ...(skills.frameworks || [])
-        ].map((skill: any) => ({
-          name: typeof skill === 'string' ? skill : skill.name,
-          icon: getIcon(typeof skill === 'string' ? skill : skill.name),
-          level: typeof skill === 'object' ? skill.level : undefined,
-          proficiency: typeof skill === 'object' ? skill.proficiency : undefined
-        }));
-
-        // Combine tools, databases, and cloud for tools skills
-        const tools: Skill[] = [
-          ...(skills.tools || []),
-          ...(skills.databases || []),
-          ...(skills.cloud || [])
-        ].map((skill: any) => ({
-          name: typeof skill === 'string' ? skill : skill.name,
-          icon: getIcon(typeof skill === 'string' ? skill : skill.name),
-          level: typeof skill === 'object' ? skill.level : undefined,
-          proficiency: typeof skill === 'object' ? skill.proficiency : undefined
-        }));
-
-        if (programming.length > 0) setProgrammingSkills(programming);
-        if (tools.length > 0) setToolsSkills(tools);
-      } catch (err) {
-        console.error('Error loading skills:', err);
-        // Keep fallback skills
-      } finally {
-        setLoading(false);
-      }
-    }
-
-    loadSkills();
-  }, []);
-  
   return (
     <section
       id="skills"
@@ -148,129 +81,44 @@ export function Skills() {
     >
       <div className="container mx-auto px-4 md:px-6">
         <h2 className="section-title">Skills</h2>
-        
-        {loading ? (
-          <div className="mt-12 space-y-8">
-            <Skeleton className="h-48 w-full" />
-            <Skeleton className="h-48 w-full" />
-          </div>
-        ) : (
-          <div className="mt-12 space-y-12">
-          {/* Programming Skills */}
+
+        <div className="mt-12 space-y-12">
+          {/* Programming & Frameworks */}
           <div className="relative">
             <h3 className="text-xl font-medium mb-6">Programming & Frameworks</h3>
-            
-            {/* First row - left to right */}
-            <div 
-              ref={row1Ref}
-              className="flex overflow-hidden"
-            >
-              <div 
+
+            <div ref={row1Ref} className="flex overflow-hidden">
+              <div
                 className="flex animate-slow-slide-left-to-right"
-                style={{
-                  animationDuration: '20s',
-                  animationIterationCount: 'infinite',
-                  animationPlayState: 'running'
-                }}
-                onMouseEnter={(e) => {
-                  // Set animation-play-state to paused on hover
-                  (e.currentTarget as HTMLDivElement).style.animationPlayState = 'paused';
-                }}
-                onMouseLeave={(e) => {
-                  // Resume animation when hover is removed
-                  (e.currentTarget as HTMLDivElement).style.animationPlayState = 'running';
-                }}
+                style={{ animationDuration: '20s', animationIterationCount: 'infinite', animationPlayState: 'running' }}
+                onMouseEnter={(e) => { (e.currentTarget as HTMLDivElement).style.animationPlayState = 'paused'; }}
+                onMouseLeave={(e) => { (e.currentTarget as HTMLDivElement).style.animationPlayState = 'running'; }}
               >
-                {programmingSkills.map((skill, index) => (
-                  <div
-                    key={`prog-${index}`}
-                    className="flex-shrink-0 w-32 md:w-40 mx-4 p-4 bg-card rounded-lg shadow-sm border-2 border-transparent hover:border-aqua transition-all duration-300"
-                  >
-                    <div className="text-3xl mb-2">{skill.icon}</div>
-                    <div className="font-medium">{skill.name}</div>
-                  </div>
-                ))}
-                {/* Repeat for seamless infinite scroll */}
-                {programmingSkills.map((skill, index) => (
-                  <div
-                    key={`prog-repeat-${index}`}
-                    className="flex-shrink-0 w-32 md:w-40 mx-4 p-4 bg-card rounded-lg shadow-sm border-2 border-transparent hover:border-aqua transition-all duration-300"
-                  >
-                    <div className="text-3xl mb-2">{skill.icon}</div>
-                    <div className="font-medium">{skill.name}</div>
-                  </div>
-                ))}
-                {programmingSkills.map((skill, index) => (
-                  <div
-                    key={`prog-${index}`}
-                    className="flex-shrink-0 w-32 md:w-40 mx-4 p-4 bg-card rounded-lg shadow-sm border-2 border-transparent hover:border-aqua transition-all duration-300"
-                  >
-                    <div className="text-3xl mb-2">{skill.icon}</div>
-                    <div className="font-medium">{skill.name}</div>
-                  </div>
+                {[...programmingSkills, ...programmingSkills, ...programmingSkills].map((skill, i) => (
+                  <SkillCard key={`prog-${i}`} skill={skill} keyPrefix="prog" index={i} />
                 ))}
               </div>
             </div>
           </div>
-          
-          {/* Tools & Databases */}
+
+          {/* Tools, Databases & AI */}
           <div className="relative">
-            <h3 className="text-xl font-medium mb-6">Tools Skills</h3>
-            
-            {/* First row - left to right */}
-            <div 
-              ref={row1Ref}
-              className="flex overflow-hidden"
-            >
-              <div 
+            <h3 className="text-xl font-medium mb-6">Tools & Technologies</h3>
+
+            <div ref={row2Ref} className="flex overflow-hidden">
+              <div
                 className="flex animate-slow-slide-right-to-left"
-                style={{
-                  animationDuration: '20s',
-                  animationIterationCount: 'infinite',
-                  animationPlayState: 'running'
-                }}
-                onMouseEnter={(e) => {
-                  // Set animation-play-state to paused on hover
-                  (e.currentTarget as HTMLDivElement).style.animationPlayState = 'paused';
-                }}
-                onMouseLeave={(e) => {
-                  // Resume animation when hover is removed
-                  (e.currentTarget as HTMLDivElement).style.animationPlayState = 'running';
-                }}
+                style={{ animationDuration: '20s', animationIterationCount: 'infinite', animationPlayState: 'running' }}
+                onMouseEnter={(e) => { (e.currentTarget as HTMLDivElement).style.animationPlayState = 'paused'; }}
+                onMouseLeave={(e) => { (e.currentTarget as HTMLDivElement).style.animationPlayState = 'running'; }}
               >
-                {toolsSkills.map((skill, index) => (
-                  <div
-                    key={`prog-${index}`}
-                    className="flex-shrink-0 w-32 md:w-40 mx-4 p-4 bg-card rounded-lg shadow-sm border-2 border-transparent hover:border-aqua transition-all duration-300"
-                  >
-                    <div className="text-3xl mb-2">{skill.icon}</div>
-                    <div className="font-medium">{skill.name}</div>
-                  </div>
-                ))}
-                {/* Repeat for seamless infinite scroll */}
-                {toolsSkills.map((skill, index) => (
-                  <div
-                    key={`prog-repeat-${index}`}
-                    className="flex-shrink-0 w-32 md:w-40 mx-4 p-4 bg-card rounded-lg shadow-sm border-2 border-transparent hover:border-aqua transition-all duration-300"
-                  >
-                    <div className="text-3xl mb-2">{skill.icon}</div>
-                    <div className="font-medium">{skill.name}</div>
-                  </div>
-                ))}
-                {toolsSkills.map((skill, index) => (
-                  <div
-                    key={`prog-${index}`}
-                    className="flex-shrink-0 w-32 md:w-40 mx-4 p-4 bg-card rounded-lg shadow-sm border-2 border-transparent hover:border-aqua transition-all duration-300"
-                  >
-                    <div className="text-3xl mb-2">{skill.icon}</div>
-                    <div className="font-medium">{skill.name}</div>
-                  </div>
+                {[...toolsSkills, ...toolsSkills, ...toolsSkills].map((skill, i) => (
+                  <SkillCard key={`tool-${i}`} skill={skill} keyPrefix="tool" index={i} />
                 ))}
               </div>
             </div>
           </div>
         </div>
-        )}
       </div>
     </section>
   );
