@@ -54,9 +54,10 @@ const Index = () => {
         <Suspense fallback={<div className="py-24 text-center text-muted-foreground">Loading…</div>}>
           <GitHubProfile />
           <LeetCodeSection />
+          <Education />
           <Achievements />
-        <Education />
         </Suspense>
+
         <Contact />
       </main>
       <Footer />
