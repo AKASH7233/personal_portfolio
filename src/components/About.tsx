@@ -192,7 +192,7 @@ export function About() {
                 {/* Download Resume Button */}
                 <div className="pt-4">
                   <a 
-                    href="https://drive.google.com/uc?export=download&id=1Mpyu3tKd3iZ_mzMQdeAHwbfk1dqcUafI" 
+                    href="https://drive.google.com/uc?export=download&id=1HHa-3rBHmsn_KME2Hi9-9_UmqsaFur-s" 
                     download
                     target="_blank"
                     rel="noopener noreferrer"
