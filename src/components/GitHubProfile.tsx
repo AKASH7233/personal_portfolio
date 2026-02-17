@@ -1,36 +1,39 @@
-import { useState, useEffect, useMemo } from "react";
+import { useState, useEffect } from "react";
 import { Card, CardContent } from "@/components/ui/card";
-import { ExternalLink, Star, GitFork, MapPin, BookOpen } from "lucide-react";
+import { ExternalLink, Star, GitFork, MapPin, BookOpen, Users } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
 import useIntersectionObserver from "@/hooks/useIntersectionObserver";
 import { cn } from "@/lib/utils";
-import { fetchFromAPI, API_ENDPOINTS } from "@/lib/api";
+import { GitHubCalendar } from "react-github-calendar";
+
+const GITHUB_USERNAME = "AKASH7233";
 
 /* ── types ─────────────────────────────────────────────────────── */
-interface Repo {
+interface GitHubUser {
+  avatar_url: string;
+  name: string;
+  bio: string;
+  public_repos: number;
+  followers: number;
+  following: number;
+  html_url: string;
+  location: string | null;
+}
+
+interface GitHubRepo {
   id: number;
   name: string;
-  description: string;
-  htmlUrl: string;
-  homepage?: string;
-  language: string;
-  stars: number;
-  forks: number;
+  description: string | null;
+  html_url: string;
+  homepage: string | null;
+  language: string | null;
+  stargazers_count: number;
+  forks_count: number;
   topics: string[];
-  updatedAt: string;
+  fork: boolean;
 }
 
-interface Contribution { date: string; count: number; level: string }
 interface TopLanguage { language: string; count: number }
-
-interface ReposData {
-  repositories: Repo[];
-  topLanguages: TopLanguage[];
-  totalRepos: number;
-  totalStars: number;
-}
-interface ContribData { totalContributions: number; contributions: Contribution[] }
-interface StatsData  { followers: number; following: number; publicRepos: number; location?: string }
 
 /* ── colour helpers ────────────────────────────────────────────── */
 const LANG_COLOURS: Record<string, string> = {
@@ -38,87 +41,6 @@ const LANG_COLOURS: Record<string, string> = {
   Java: "#b07219", HTML: "#e34c26", CSS: "#563d7c", "C++": "#f34b7d",
   Ruby: "#701516", Go: "#00add8", Rust: "#dea584", Shell: "#89e051",
 };
-
-const LEVEL_COLOUR: Record<string, string> = {
-  NONE: "bg-[#161b22] dark:bg-[#161b22]",
-  FIRST_QUARTILE: "bg-[#0e4429] dark:bg-[#0e4429]",
-  SECOND_QUARTILE: "bg-[#006d32] dark:bg-[#006d32]",
-  THIRD_QUARTILE: "bg-[#26a641] dark:bg-[#26a641]",
-  FOURTH_QUARTILE: "bg-[#39d353] dark:bg-[#39d353]",
-};
-
-/* ── ContributionHeatmap ───────────────────────────────────────── */
-function ContributionHeatmap({ contributions, total }: { contributions: Contribution[]; total: number }) {
-  const { weeks, months } = useMemo(() => {
-    const sorted = [...contributions].sort(
-      (a, b) => new Date(a.date).getTime() - new Date(b.date).getTime()
-    );
-    // only keep last ~52 weeks (364 days)
-    const recent = sorted.slice(-371);
-    // pad so the first column starts on Sunday
-    const firstDay = new Date(recent[0]?.date ?? new Date()).getDay();
-    const padded = [
-      ...Array.from({ length: firstDay }, () => ({ date: "", count: 0, level: "NONE" })),
-      ...recent,
-    ];
-
-    const ws: Contribution[][] = [];
-    for (let i = 0; i < padded.length; i += 7) ws.push(padded.slice(i, i + 7));
-
-    // month labels
-    const ms: { label: string; col: number }[] = [];
-    let last = "";
-    ws.forEach((w, ci) => {
-      const first = w.find((d) => d.date);
-      if (!first) return;
-      const m = new Date(first.date).toLocaleString("default", { month: "short" });
-      if (m !== last) { ms.push({ label: m, col: ci }); last = m; }
-    });
-
-    return { weeks: ws, months: ms };
-  }, [contributions]);
-
-  return (
-    <div className="overflow-x-auto" role="img" aria-label={`GitHub contribution graph — ${total} contributions in the last year`}>
-      {/* month labels */}
-      <div className="flex text-[10px] text-muted-foreground mb-1 ml-7" aria-hidden>
-        {months.map((m, i) => (
-          <span key={i} style={{ position: "relative", left: `${m.col * 14}px` }} className="absolute">
-            {m.label}
-          </span>
-        ))}
-      </div>
-      <div className="flex gap-[3px] mt-5">
-        {/* day labels */}
-        <div className="flex flex-col gap-[3px] text-[10px] text-muted-foreground pr-1" aria-hidden>
-          {["", "Mon", "", "Wed", "", "Fri", ""].map((d, i) => (
-            <span key={i} className="h-[11px] leading-[11px]">{d}</span>
-          ))}
-        </div>
-        {/* grid */}
-        {weeks.map((week, wi) => (
-          <div key={wi} className="flex flex-col gap-[3px]">
-            {week.map((day, di) => (
-              <div
-                key={di}
-                className={cn("w-[11px] h-[11px] rounded-sm", LEVEL_COLOUR[day.level] || LEVEL_COLOUR.NONE)}
-                title={day.date ? `${day.count} contributions on ${day.date}` : ""}
-              />
-            ))}
-          </div>
-        ))}
-      </div>
-      {/* legend */}
-      <div className="flex items-center gap-1 mt-2 text-[10px] text-muted-foreground justify-end" aria-hidden>
-        Less
-        {["NONE", "FIRST_QUARTILE", "SECOND_QUARTILE", "THIRD_QUARTILE", "FOURTH_QUARTILE"].map((l) => (
-          <div key={l} className={cn("w-[11px] h-[11px] rounded-sm", LEVEL_COLOUR[l])} />
-        ))}
-        More
-      </div>
-    </div>
-  );
-}
 
 /* ── LanguageBar ───────────────────────────────────────────────── */
 function LanguageBar({ languages }: { languages: TopLanguage[] }) {
@@ -146,13 +68,13 @@ function LanguageBar({ languages }: { languages: TopLanguage[] }) {
 }
 
 /* ── RepoCard ──────────────────────────────────────────────────── */
-function RepoCard({ repo }: { repo: Repo }) {
+function RepoCard({ repo }: { repo: GitHubRepo }) {
   return (
     <Card className="bg-card border-border hover:border-aqua/40 transition-colors h-full">
       <CardContent className="p-4 flex flex-col h-full">
         <div className="flex items-start justify-between mb-1">
           <a
-            href={repo.htmlUrl}
+            href={repo.html_url}
             target="_blank"
             rel="noopener noreferrer"
             className="text-aqua font-semibold hover:underline text-sm flex items-center gap-1"
@@ -182,11 +104,11 @@ function RepoCard({ repo }: { repo: Repo }) {
               {repo.language}
             </span>
           )}
-          {repo.stars > 0 && (
-            <span className="flex items-center gap-0.5"><Star className="w-3 h-3" />{repo.stars}</span>
+          {repo.stargazers_count > 0 && (
+            <span className="flex items-center gap-0.5"><Star className="w-3 h-3" />{repo.stargazers_count}</span>
           )}
-          {repo.forks > 0 && (
-            <span className="flex items-center gap-0.5"><GitFork className="w-3 h-3" />{repo.forks}</span>
+          {repo.forks_count > 0 && (
+            <span className="flex items-center gap-0.5"><GitFork className="w-3 h-3" />{repo.forks_count}</span>
           )}
         </div>
       </CardContent>
@@ -197,24 +119,46 @@ function RepoCard({ repo }: { repo: Repo }) {
 /* ── main export ───────────────────────────────────────────────── */
 export default function GitHubProfile() {
   const { elementRef, isIntersecting } = useIntersectionObserver({ threshold: 0.05, rootMargin: "-80px" });
-  const [repos, setRepos] = useState<ReposData | null>(null);
-  const [contribs, setContribs] = useState<ContribData | null>(null);
-  const [stats, setStats] = useState<StatsData | null>(null);
+  const [user, setUser] = useState<GitHubUser | null>(null);
+  const [repos, setRepos] = useState<GitHubRepo[]>([]);
+  const [topLangs, setTopLangs] = useState<TopLanguage[]>([]);
+  const [totalStars, setTotalStars] = useState(0);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     async function load() {
       try {
-        const [r, c, s] = await Promise.all([
-          fetchFromAPI(API_ENDPOINTS.GITHUB_REPOS),
-          fetchFromAPI(API_ENDPOINTS.GITHUB_CONTRIBUTIONS),
-          fetchFromAPI(API_ENDPOINTS.GITHUB_STATS),
+        const [userRes, reposRes] = await Promise.all([
+          fetch(`https://api.github.com/users/${GITHUB_USERNAME}`),
+          fetch(`https://api.github.com/users/${GITHUB_USERNAME}/repos?sort=updated&per_page=100`),
         ]);
-        setRepos(r);
-        setContribs(c);
-        setStats(s);
-      } catch (e) {
+
+        if (!userRes.ok) throw new Error(`GitHub user API error: ${userRes.status}`);
+        if (!reposRes.ok) throw new Error(`GitHub repos API error: ${reposRes.status}`);
+
+        const userData: GitHubUser = await userRes.json();
+        const reposData: GitHubRepo[] = await reposRes.json();
+
+        // Filter out forks, compute top languages and stars
+        const ownRepos = reposData.filter((r) => !r.fork);
+        const langMap: Record<string, number> = {};
+        let stars = 0;
+        ownRepos.forEach((r) => {
+          if (r.language) langMap[r.language] = (langMap[r.language] || 0) + 1;
+          stars += r.stargazers_count;
+        });
+        const langs = Object.entries(langMap)
+          .map(([language, count]) => ({ language, count }))
+          .sort((a, b) => b.count - a.count);
+
+        setUser(userData);
+        setRepos(ownRepos);
+        setTopLangs(langs);
+        setTotalStars(stars);
+      } catch (e: any) {
         console.error("Error loading GitHub data:", e);
+        setError(e.message || "Failed to load GitHub data");
       } finally {
         setLoading(false);
       }
@@ -227,10 +171,28 @@ export default function GitHubProfile() {
       <section id="github" className="py-16 md:py-24" aria-label="GitHub profile">
         <div className="container mx-auto px-4 md:px-6 space-y-6">
           <Skeleton className="h-8 w-60" />
-          <Skeleton className="h-40 w-full" />
+          <div className="flex items-center gap-6">
+            <Skeleton className="w-20 h-20 rounded-full" />
+            <div className="space-y-2 flex-1">
+              <Skeleton className="h-6 w-40" />
+              <Skeleton className="h-4 w-64" />
+              <Skeleton className="h-4 w-48" />
+            </div>
+          </div>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
             {[...Array(6)].map((_, i) => <Skeleton key={i} className="h-28 w-full" />)}
           </div>
+          <Skeleton className="h-40 w-full" />
+        </div>
+      </section>
+    );
+  }
+
+  if (error) {
+    return (
+      <section id="github" className="py-16 md:py-24" aria-label="GitHub profile">
+        <div className="container mx-auto px-4 md:px-6 text-center text-muted-foreground">
+          <p>Unable to load GitHub data. Please try again later.</p>
         </div>
       </section>
     );
@@ -251,53 +213,96 @@ export default function GitHubProfile() {
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
           <h2 className="section-title">GitHub</h2>
           <a
-            href="https://github.com/AKASH7233"
+            href={user?.html_url || `https://github.com/${GITHUB_USERNAME}`}
             target="_blank"
             rel="noopener noreferrer"
             className="text-sm text-aqua hover:underline flex items-center gap-1"
           >
-            @AKASH7233 <ExternalLink className="w-3.5 h-3.5" />
+            @{GITHUB_USERNAME} <ExternalLink className="w-3.5 h-3.5" />
           </a>
         </div>
 
-        {/* stats row */}
-        <div className="flex flex-wrap gap-6 text-sm text-muted-foreground">
-          <span><strong className="text-foreground">{repos?.totalRepos ?? stats?.publicRepos ?? 0}</strong> repositories</span>
-          <span><strong className="text-foreground">{repos?.totalStars ?? 0}</strong> stars</span>
-          <span><strong className="text-foreground">{stats?.followers ?? 0}</strong> followers</span>
-          {stats?.location && (
-            <span className="flex items-center gap-1"><MapPin className="w-3.5 h-3.5" />{stats.location}</span>
-          )}
-        </div>
-
-        {/* contribution heatmap */}
-        {contribs && (
+        {/* ── profile card ─────────────────────────────────────── */}
+        {user && (
           <Card className="bg-card border-border">
-            <CardContent className="p-4 md:p-6">
-              <p className="text-sm text-muted-foreground mb-3">
-                <strong className="text-foreground">{contribs.totalContributions.toLocaleString()}</strong> contributions in the last year
-              </p>
-              <ContributionHeatmap contributions={contribs.contributions} total={contribs.totalContributions} />
+            <CardContent className="p-5 md:p-6">
+              <div className="flex flex-col sm:flex-row items-center sm:items-start gap-5">
+                <img
+                  src={user.avatar_url}
+                  alt={user.name}
+                  className="w-20 h-20 rounded-full ring-2 ring-aqua/30"
+                  loading="lazy"
+                />
+                <div className="flex-1 text-center sm:text-left">
+                  <h3 className="text-xl font-bold">{user.name}</h3>
+                  {user.bio && (
+                    <p className="text-sm text-muted-foreground mt-1 max-w-xl">{user.bio}</p>
+                  )}
+                  {user.location && (
+                    <p className="text-xs text-muted-foreground mt-1 flex items-center gap-1 justify-center sm:justify-start">
+                      <MapPin className="w-3 h-3" /> {user.location}
+                    </p>
+                  )}
+                  {/* follower / following / repos / stars row */}
+                  <div className="flex flex-wrap items-center gap-4 mt-3 text-sm justify-center sm:justify-start">
+                    <span className="flex items-center gap-1.5">
+                      <Users className="w-4 h-4 text-muted-foreground" />
+                      <strong className="text-foreground">{user.followers}</strong>
+                      <span className="text-muted-foreground">followers</span>
+                    </span>
+                    <span className="text-muted-foreground">·</span>
+                    <span>
+                      <strong className="text-foreground">{user.following}</strong>{" "}
+                      <span className="text-muted-foreground">following</span>
+                    </span>
+                    <span className="text-muted-foreground">·</span>
+                    <span>
+                      <strong className="text-foreground">{user.public_repos}</strong>{" "}
+                      <span className="text-muted-foreground">repos</span>
+                    </span>
+                    <span className="text-muted-foreground">·</span>
+                    <span className="flex items-center gap-1">
+                      <Star className="w-3.5 h-3.5 text-amber-400" />
+                      <strong className="text-foreground">{totalStars}</strong>{" "}
+                      <span className="text-muted-foreground">stars</span>
+                    </span>
+                  </div>
+                </div>
+              </div>
             </CardContent>
           </Card>
         )}
 
-        {/* language bar */}
-        {repos?.topLanguages && repos.topLanguages.length > 0 && (
-          <LanguageBar languages={repos.topLanguages} />
-        )}
-
-        {/* repos grid */}
-        {repos?.repositories && repos.repositories.length > 0 && (
+        {/* ── pinned / popular repositories ────────────────────── */}
+        {repos.length > 0 && (
           <div>
             <h3 className="text-lg font-semibold mb-4">Pinned Repositories</h3>
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-              {repos.repositories.slice(0, 6).map((repo) => (
+              {repos.slice(0, 6).map((repo) => (
                 <RepoCard key={repo.id} repo={repo} />
               ))}
             </div>
           </div>
         )}
+
+        {/* ── language bar ─────────────────────────────────────── */}
+        {topLangs.length > 0 && <LanguageBar languages={topLangs} />}
+
+        {/* ── contribution heatmap (bottom) ─────────────────────── */}
+        <Card className="bg-card border-border">
+          <CardContent className="p-4 md:p-6">
+            <p className="text-sm text-muted-foreground mb-3">Contribution Activity</p>
+            <div className="overflow-x-auto">
+              <GitHubCalendar
+                username={GITHUB_USERNAME}
+                colorScheme="dark"
+                fontSize={12}
+                blockSize={11}
+                blockMargin={3}
+              />
+            </div>
+          </CardContent>
+        </Card>
       </div>
     </section>
   );
