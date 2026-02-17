@@ -33,6 +33,16 @@ interface GitHubRepo {
   fork: boolean;
 }
 
+interface PinnedRepo {
+  author: string;
+  name: string;
+  description: string;
+  language: string;
+  languageColor: string;
+  stars: number;
+  forks: number;
+}
+
 interface TopLanguage { language: string; count: number }
 
 /* ── colour helpers ────────────────────────────────────────────── */
@@ -67,14 +77,15 @@ function LanguageBar({ languages }: { languages: TopLanguage[] }) {
   );
 }
 
-/* ── RepoCard ──────────────────────────────────────────────────── */
-function RepoCard({ repo }: { repo: GitHubRepo }) {
+/* ── PinnedRepoCard ────────────────────────────────────────────── */
+function PinnedRepoCard({ repo }: { repo: PinnedRepo }) {
+  const repoUrl = `https://github.com/${repo.author}/${repo.name}`;
   return (
     <Card className="bg-card border-border hover:border-aqua/40 transition-colors h-full">
       <CardContent className="p-4 flex flex-col h-full">
         <div className="flex items-start justify-between mb-1">
           <a
-            href={repo.html_url}
+            href={repoUrl}
             target="_blank"
             rel="noopener noreferrer"
             className="text-aqua font-semibold hover:underline text-sm flex items-center gap-1"
@@ -82,17 +93,15 @@ function RepoCard({ repo }: { repo: GitHubRepo }) {
             <BookOpen className="w-4 h-4 shrink-0" />
             {repo.name}
           </a>
-          {repo.homepage && (
-            <a
-              href={repo.homepage}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="text-muted-foreground hover:text-aqua"
-              aria-label={`Live demo of ${repo.name}`}
-            >
-              <ExternalLink className="w-3.5 h-3.5" />
-            </a>
-          )}
+          <a
+            href={repoUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="text-muted-foreground hover:text-aqua"
+            aria-label={`View ${repo.name} on GitHub`}
+          >
+            <ExternalLink className="w-3.5 h-3.5" />
+          </a>
         </div>
         <p className="text-xs text-muted-foreground line-clamp-2 mb-3 flex-1">
           {repo.description || "No description"}
@@ -100,15 +109,15 @@ function RepoCard({ repo }: { repo: GitHubRepo }) {
         <div className="flex items-center gap-3 text-xs text-muted-foreground mt-auto">
           {repo.language && (
             <span className="flex items-center gap-1">
-              <span className="w-2 h-2 rounded-full" style={{ backgroundColor: LANG_COLOURS[repo.language] || "#8b949e" }} />
+              <span className="w-2 h-2 rounded-full" style={{ backgroundColor: repo.languageColor || LANG_COLOURS[repo.language] || "#8b949e" }} />
               {repo.language}
             </span>
           )}
-          {repo.stargazers_count > 0 && (
-            <span className="flex items-center gap-0.5"><Star className="w-3 h-3" />{repo.stargazers_count}</span>
+          {repo.stars > 0 && (
+            <span className="flex items-center gap-0.5"><Star className="w-3 h-3" />{repo.stars}</span>
           )}
-          {repo.forks_count > 0 && (
-            <span className="flex items-center gap-0.5"><GitFork className="w-3 h-3" />{repo.forks_count}</span>
+          {repo.forks > 0 && (
+            <span className="flex items-center gap-0.5"><GitFork className="w-3 h-3" />{repo.forks}</span>
           )}
         </div>
       </CardContent>
@@ -120,42 +129,65 @@ function RepoCard({ repo }: { repo: GitHubRepo }) {
 export default function GitHubProfile() {
   const { elementRef, isIntersecting } = useIntersectionObserver({ threshold: 0.05, rootMargin: "-80px" });
   const [user, setUser] = useState<GitHubUser | null>(null);
-  const [repos, setRepos] = useState<GitHubRepo[]>([]);
+  const [pinnedRepos, setPinnedRepos] = useState<PinnedRepo[]>([]);
   const [topLangs, setTopLangs] = useState<TopLanguage[]>([]);
   const [totalStars, setTotalStars] = useState(0);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
+  // Detect site theme for calendar
+  const [isDark, setIsDark] = useState(() =>
+    typeof document !== "undefined" ? document.documentElement.classList.contains("dark") : true
+  );
+  useEffect(() => {
+    const observer = new MutationObserver(() => {
+      setIsDark(document.documentElement.classList.contains("dark"));
+    });
+    observer.observe(document.documentElement, { attributes: true, attributeFilter: ["class"] });
+    return () => observer.disconnect();
+  }, []);
+
   useEffect(() => {
     async function load() {
       try {
-        const [userRes, reposRes] = await Promise.all([
-          fetch(`https://api.github.com/users/${GITHUB_USERNAME}`),
-          fetch(`https://api.github.com/users/${GITHUB_USERNAME}/repos?sort=updated&per_page=100`),
-        ]);
+        // Fetch each independently so one failure doesn't break everything
+        // No GitHub token needed — all public APIs
 
+        // 1. User profile (required)
+        const userRes = await fetch(`https://api.github.com/users/${GITHUB_USERNAME}`);
         if (!userRes.ok) throw new Error(`GitHub user API error: ${userRes.status}`);
-        if (!reposRes.ok) throw new Error(`GitHub repos API error: ${reposRes.status}`);
-
         const userData: GitHubUser = await userRes.json();
-        const reposData: GitHubRepo[] = await reposRes.json();
-
-        // Filter out forks, compute top languages and stars
-        const ownRepos = reposData.filter((r) => !r.fork);
-        const langMap: Record<string, number> = {};
-        let stars = 0;
-        ownRepos.forEach((r) => {
-          if (r.language) langMap[r.language] = (langMap[r.language] || 0) + 1;
-          stars += r.stargazers_count;
-        });
-        const langs = Object.entries(langMap)
-          .map(([language, count]) => ({ language, count }))
-          .sort((a, b) => b.count - a.count);
-
         setUser(userData);
-        setRepos(ownRepos);
-        setTopLangs(langs);
-        setTotalStars(stars);
+
+        // 2. Repos for language bar + star count (optional — fail silently)
+        try {
+          const reposRes = await fetch(`https://api.github.com/users/${GITHUB_USERNAME}/repos?sort=updated&per_page=100`);
+          if (reposRes.ok) {
+            const reposData: GitHubRepo[] = await reposRes.json();
+            const ownRepos = reposData.filter((r) => !r.fork);
+            const langMap: Record<string, number> = {};
+            let stars = 0;
+            ownRepos.forEach((r) => {
+              if (r.language) langMap[r.language] = (langMap[r.language] || 0) + 1;
+              stars += r.stargazers_count;
+            });
+            setTopLangs(
+              Object.entries(langMap)
+                .map(([language, count]) => ({ language, count }))
+                .sort((a, b) => b.count - a.count)
+            );
+            setTotalStars(stars);
+          }
+        } catch { /* rate-limited or network error — skip language bar */ }
+
+        // 3. Pinned repos (optional — fail silently)
+        try {
+          const pinnedRes = await fetch(`https://pinned.berrysauce.dev/get/${GITHUB_USERNAME}`);
+          if (pinnedRes.ok) {
+            const pinned: PinnedRepo[] = await pinnedRes.json();
+            setPinnedRepos(pinned);
+          }
+        } catch { /* pinned API down — skip pinned section */ }
       } catch (e: any) {
         console.error("Error loading GitHub data:", e);
         setError(e.message || "Failed to load GitHub data");
@@ -273,13 +305,13 @@ export default function GitHubProfile() {
           </Card>
         )}
 
-        {/* ── pinned / popular repositories ────────────────────── */}
-        {repos.length > 0 && (
+        {/* ── pinned repositories ─────────────────────────────── */}
+        {pinnedRepos.length > 0 && (
           <div>
             <h3 className="text-lg font-semibold mb-4">Pinned Repositories</h3>
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-              {repos.slice(0, 6).map((repo) => (
-                <RepoCard key={repo.id} repo={repo} />
+              {pinnedRepos.map((repo) => (
+                <PinnedRepoCard key={repo.name} repo={repo} />
               ))}
             </div>
           </div>
@@ -295,7 +327,7 @@ export default function GitHubProfile() {
             <div className="overflow-x-auto">
               <GitHubCalendar
                 username={GITHUB_USERNAME}
-                colorScheme="dark"
+                colorScheme={isDark ? "dark" : "light"}
                 fontSize={12}
                 blockSize={11}
                 blockMargin={3}
