@@ -29,30 +29,34 @@ export function generateSitemap(entries: SitemapEntry[], baseUrl: string): strin
 }
 
 export function generateRobotsTxt(baseUrl: string): string {
-  return `User-agent: *
-Allow: /
-
+  return `# ${baseUrl} robots.txt
 User-agent: Googlebot
 Allow: /
 
 User-agent: Bingbot
 Allow: /
+Crawl-delay: 1
 
-Sitemap: ${baseUrl}/sitemap.xml
-Sitemap: ${baseUrl}/projects-sitemap.xml
+User-agent: Twitterbot
+Allow: /
 
-# Block access to admin areas
-Disallow: /admin/
+User-agent: facebookexternalhit
+Allow: /
+
+User-agent: LinkedInBot
+Allow: /
+
+User-agent: *
+Allow: /
+
 Disallow: /api/
-Disallow: /_next/
 Disallow: /node_modules/
 
-# Allow important files
 Allow: /api/sitemap
-Allow: /api/rss
+Allow: /api/robots
 
-# Cache directives
-Crawl-delay: 1`;
+Sitemap: ${baseUrl}/sitemap.xml
+Host: ${baseUrl}`;
 }
 
 export const defaultSitemapEntries: SitemapEntry[] = [
@@ -69,12 +73,6 @@ export const defaultSitemapEntries: SitemapEntry[] = [
     priority: 0.9
   },
   {
-    url: '/#projects',
-    lastModified: new Date().toISOString(),
-    changeFrequency: 'weekly',
-    priority: 0.9
-  },
-  {
     url: '/#skills',
     lastModified: new Date().toISOString(),
     changeFrequency: 'monthly',
@@ -87,21 +85,27 @@ export const defaultSitemapEntries: SitemapEntry[] = [
     priority: 0.8
   },
   {
-    url: '/#education',
+    url: '/#github',
     lastModified: new Date().toISOString(),
-    changeFrequency: 'yearly',
-    priority: 0.7
+    changeFrequency: 'weekly',
+    priority: 0.9
   },
   {
     url: '/#leetcode',
     lastModified: new Date().toISOString(),
     changeFrequency: 'weekly',
-    priority: 0.8
+    priority: 0.9
   },
   {
     url: '/#achievements',
     lastModified: new Date().toISOString(),
     changeFrequency: 'monthly',
+    priority: 0.7
+  },
+  {
+    url: '/#education',
+    lastModified: new Date().toISOString(),
+    changeFrequency: 'yearly',
     priority: 0.7
   },
   {
