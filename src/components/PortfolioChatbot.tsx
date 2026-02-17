@@ -4,8 +4,11 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { fetchFromAPI, API_ENDPOINTS } from "@/lib/api";
 import ReactMarkdown from 'react-markdown';
+
+const GITHUB_USERNAME = "AKASH7233";
+const LEETCODE_USERNAME = "akashyadv7233";
+const LEETCODE_API = "https://alfa-leetcode-api.onrender.com";
 
 interface Message {
   id: string;
@@ -15,11 +18,239 @@ interface Message {
 }
 
 interface PortfolioData {
-  github?: any;
-  leetcode?: any;
-  achievements?: any;
-  skills?: any;
-  about?: any;
+  github?: { user: any; repos: any[] };
+  leetcode?: { profile: any; solved: any; contest: any };
+  pinned?: any[];
+}
+
+/* ── fetch real data from the same APIs the sections use ─────── */
+async function fetchPortfolioData(): Promise<PortfolioData> {
+  const data: PortfolioData = {};
+
+  try {
+    const [ghUser, ghRepos] = await Promise.all([
+      fetch(`https://api.github.com/users/${GITHUB_USERNAME}`).then(r => r.ok ? r.json() : null),
+      fetch(`https://api.github.com/users/${GITHUB_USERNAME}/repos?sort=updated&per_page=100`).then(r => r.ok ? r.json() : []),
+    ]);
+    data.github = { user: ghUser, repos: ghRepos };
+  } catch { /* skip */ }
+
+  try {
+    const pinned = await fetch(`https://pinned.berrysauce.dev/get/${GITHUB_USERNAME}`).then(r => r.ok ? r.json() : []);
+    data.pinned = pinned;
+  } catch { /* skip */ }
+
+  try {
+    const [profile, solved, contest] = await Promise.all([
+      fetch(`${LEETCODE_API}/${LEETCODE_USERNAME}`).then(r => r.ok ? r.json() : null),
+      fetch(`${LEETCODE_API}/${LEETCODE_USERNAME}/solved`).then(r => r.ok ? r.json() : null),
+      fetch(`${LEETCODE_API}/${LEETCODE_USERNAME}/contest`).then(r => r.ok ? r.json() : null),
+    ]);
+    data.leetcode = { profile, solved, contest };
+  } catch { /* skip */ }
+
+  return data;
+}
+
+/* ── response generator ──────────────────────────────────────── */
+function generateResponse(q: string, data: PortfolioData): string {
+  const question = q.toLowerCase().trim();
+
+  // Identity questions
+  if (
+    question.match(/who\s*are\s*you/) ||
+    question.match(/what\s*are\s*you/) ||
+    question.match(/which\s*model/) ||
+    question.match(/what\s*model/) ||
+    question.match(/your\s*name/) ||
+    question.match(/are\s*you\s*(ai|bot|gpt|chatgpt|gemini|llm)/)
+  ) {
+    return "I am a bot serving on behalf of Akash for you. I can answer questions about his skills, projects, LeetCode stats, experience, and more.";
+  }
+
+  // --- LeetCode: rating specifically ---
+  if (question.match(/rating/) && (question.match(/leetcode|contest|lc/) || !question.match(/github/))) {
+    const c = data.leetcode?.contest;
+    if (c?.contestRating) {
+      return `Akash's LeetCode contest rating is **${Math.round(c.contestRating)}**.${c.contestBadges?.name ? ` He holds the **${c.contestBadges.name}** badge.` : ""}\n\nProfile: [leetcode.com/u/${LEETCODE_USERNAME}](https://leetcode.com/u/${LEETCODE_USERNAME})`;
+    }
+    return "Contest rating data is currently unavailable.";
+  }
+
+  // --- LeetCode: rank specifically ---
+  if (question.match(/rank/) && (question.match(/leetcode|contest|lc|global/) || !question.match(/github/))) {
+    const c = data.leetcode?.contest;
+    const p = data.leetcode?.profile;
+    if (question.match(/contest/) && c?.contestGlobalRanking) {
+      return `Akash's LeetCode contest global rank is **#${c.contestGlobalRanking.toLocaleString()}** (top ${c.contestTopPercentage?.toFixed(1)}%).`;
+    }
+    if (p?.ranking) {
+      return `Akash's overall LeetCode ranking is **#${p.ranking.toLocaleString()}**.`;
+    }
+    return "Ranking data is currently unavailable.";
+  }
+
+  // --- LeetCode: solved count ---
+  if (question.match(/how\s*many.*solved|total.*solved|problems?\s*solved|solved.*problem/) && (question.match(/leetcode|lc/) || !question.match(/github/))) {
+    const s = data.leetcode?.solved;
+    if (s) {
+      return `Akash has solved **${s.solvedProblem}** problems on LeetCode -- ${s.easySolved} Easy, ${s.mediumSolved} Medium, and ${s.hardSolved} Hard.\n\nProfile: [leetcode.com/u/${LEETCODE_USERNAME}](https://leetcode.com/u/${LEETCODE_USERNAME})`;
+    }
+    return "Solved count data is currently unavailable.";
+  }
+
+  // --- LeetCode: contest performance ---
+  if (question.match(/contest/) && (question.match(/leetcode|lc/) || !question.match(/github/))) {
+    const c = data.leetcode?.contest;
+    if (c) {
+      let r = `**Akash's LeetCode Contest Performance:**\n\n`;
+      r += `- Contest Rating: **${Math.round(c.contestRating)}**\n`;
+      r += `- Global Rank: **#${c.contestGlobalRanking?.toLocaleString()}**\n`;
+      r += `- Contests Attended: **${c.contestAttend}**\n`;
+      r += `- Top **${c.contestTopPercentage?.toFixed(1)}%** globally`;
+      if (c.contestBadges?.name) r += `\n- Badge: **${c.contestBadges.name}**`;
+      r += `\n\nProfile: [leetcode.com/u/${LEETCODE_USERNAME}](https://leetcode.com/u/${LEETCODE_USERNAME})`;
+      return r;
+    }
+    return "Contest data is currently unavailable.";
+  }
+
+  // --- LeetCode: general ---
+  if (question.match(/leetcode|lc\b/)) {
+    const s = data.leetcode?.solved;
+    const c = data.leetcode?.contest;
+    if (s) {
+      let r = `**Akash's LeetCode Profile:**\n\n`;
+      r += `- Problems Solved: **${s.solvedProblem}** (Easy: ${s.easySolved}, Medium: ${s.mediumSolved}, Hard: ${s.hardSolved})\n`;
+      if (c?.contestRating) r += `- Contest Rating: **${Math.round(c.contestRating)}**\n`;
+      if (c?.contestGlobalRanking) r += `- Global Rank: **#${c.contestGlobalRanking.toLocaleString()}**\n`;
+      if (c?.contestAttend) r += `- Contests Attended: **${c.contestAttend}**`;
+      if (c?.contestBadges?.name) r += `\n- Badge: **${c.contestBadges.name}**`;
+      r += `\n\nProfile: [leetcode.com/u/${LEETCODE_USERNAME}](https://leetcode.com/u/${LEETCODE_USERNAME})`;
+      return r;
+    }
+    return "LeetCode data is currently unavailable. You can check his profile at [leetcode.com/u/" + LEETCODE_USERNAME + "](https://leetcode.com/u/" + LEETCODE_USERNAME + ").";
+  }
+
+  // --- GitHub: pinned repos ---
+  if (question.match(/pinned|pin/)) {
+    const pinned = data.pinned;
+    if (pinned?.length) {
+      const list = pinned.map((r: any) => `- [${r.name}](https://github.com/${r.author}/${r.name}) -- ${r.description || "No description"} (${r.language})`).join("\n");
+      return `**Akash's Pinned Repositories:**\n\n${list}`;
+    }
+    return "Pinned repos data is currently unavailable.";
+  }
+
+  // --- GitHub: projects / repos ---
+  if (question.match(/project|github|repo/)) {
+    const gh = data.github;
+    const pinned = data.pinned;
+    if (gh?.user) {
+      let r = `Akash has **${gh.user.public_repos}** public repositories on GitHub.`;
+      if (pinned?.length) {
+        r += `\n\n**Pinned Repositories:**\n`;
+        r += pinned.map((p: any) => `- [${p.name}](https://github.com/${p.author}/${p.name}) -- ${p.description || "No description"}`).join("\n");
+      }
+      r += `\n\nGitHub: [github.com/${GITHUB_USERNAME}](https://github.com/${GITHUB_USERNAME})`;
+      return r;
+    }
+    return `You can view Akash's projects at [github.com/${GITHUB_USERNAME}](https://github.com/${GITHUB_USERNAME}).`;
+  }
+
+  // --- GitHub: followers ---
+  if (question.match(/follower|following/)) {
+    const u = data.github?.user;
+    if (u) {
+      return `Akash has **${u.followers}** followers and is following **${u.following}** people on GitHub.\n\nGitHub: [github.com/${GITHUB_USERNAME}](https://github.com/${GITHUB_USERNAME})`;
+    }
+  }
+
+  // --- GitHub: stars ---
+  if (question.match(/star/) && question.match(/github/)) {
+    const repos = data.github?.repos;
+    if (repos?.length) {
+      const total = repos.reduce((s: number, r: any) => s + (r.stargazers_count || 0), 0);
+      return `Akash has a total of **${total}** stars across his GitHub repositories.`;
+    }
+  }
+
+  // --- Skills ---
+  if (question.match(/skill|tech\s*stack|technolog|language.*know|what.*use/)) {
+    return `**Akash's Technical Skills:**\n\n` +
+      `- **Languages:** Java, JavaScript, TypeScript, Python, C++, SQL\n` +
+      `- **Frontend:** React.js, Next.js, TailwindCSS, Redux, HTML5, CSS3\n` +
+      `- **Backend:** Node.js, Express.js, Spring Boot, Apache Kafka\n` +
+      `- **Databases:** MongoDB, PostgreSQL, MySQL, Prisma ORM\n` +
+      `- **Tools:** Git, Docker, Webpack, Vite, Prometheus, Grafana\n\n` +
+      `Portfolio: [akashyadav-one.vercel.app](https://akashyadav-one.vercel.app/)`;
+  }
+
+  // --- Education ---
+  if (question.match(/education|college|university|degree|cgpa|school/)) {
+    return `Akash is an undergraduate from **Thakur College of Engineering and Technology**, Mumbai, pursuing a Bachelor of Engineering in Computer Engineering with a **9 CGPA**.`;
+  }
+
+  // --- Experience ---
+  if (question.match(/experience|work|intern|job|company/)) {
+    return `**Akash's Experience:**\n\n` +
+      `1. **Full Stack Developer Intern** at VighnoTech (Aug 2023 - Feb 2024)\n` +
+      `   - Built an integrated chatbot and form generator reducing customer response time by 30%\n` +
+      `   - Implemented automated email workflows improving inquiry management by 25%\n` +
+      `   - Technologies: React.js, Next.js, MongoDB, Express.js, TypeScript, Prisma ORM, PostgreSQL\n\n` +
+      `2. **Technical Member** at RCTCET (Aug 2023 - July 2024)\n` +
+      `   - Created the About Us and Events pages\n` +
+      `   - Coordinated tech events for 200+ attendees`;
+  }
+
+  // --- Achievements ---
+  if (question.match(/achievement|accomplish/)) {
+    const c = data.leetcode?.contest;
+    return `**Akash's Key Achievements:**\n\n` +
+      `- Solved **${data.leetcode?.solved?.solvedProblem || "700+"}** problems on LeetCode\n` +
+      (c?.contestRating ? `- LeetCode contest rating of **${Math.round(c.contestRating)}**${c.contestBadges?.name ? ` (${c.contestBadges.name} badge)` : ""}\n` : "") +
+      `- Reduced customer response time by 30% during internship at VighnoTech\n` +
+      `- Coordinated tech events for 200+ attendees at RCTCET\n` +
+      `- Maintains ${data.github?.user?.public_repos || "40+"}  open-source repositories on GitHub`;
+  }
+
+  // --- Contact ---
+  if (question.match(/contact|email|mail|phone|number|reach|call|social|linkedin/)) {
+    return `**Contact Akash:**\n\n` +
+      `- Email: [akashyadv7233@gmail.com](mailto:akashyadv7233@gmail.com)\n` +
+      `- Phone: [+91 7208510561](tel:+917208510561)\n` +
+      `- GitHub: [github.com/${GITHUB_USERNAME}](https://github.com/${GITHUB_USERNAME})\n` +
+      `- LinkedIn: [linkedin.com/in/akashyadav33](https://www.linkedin.com/in/akashyadav33/)\n` +
+      `- LeetCode: [leetcode.com/u/${LEETCODE_USERNAME}](https://leetcode.com/u/${LEETCODE_USERNAME})\n` +
+      `- Portfolio: [akashyadav-one.vercel.app](https://akashyadav-one.vercel.app/)`;
+  }
+
+  // --- About / Who is Akash ---
+  if (question.match(/about|who\s*is\s*akash|introduce|tell.*about.*akash|bio/)) {
+    const u = data.github?.user;
+    return `Akash Yadav is a Software Engineer and Computer Engineering student at Thakur College of Engineering and Technology, Mumbai.` +
+      (u?.bio ? ` ${u.bio}.` : "") +
+      `\n\nHe has solved ${data.leetcode?.solved?.solvedProblem || "700+"} LeetCode problems, holds a contest rating of ${data.leetcode?.contest?.contestRating ? Math.round(data.leetcode.contest.contestRating) : "~1989"}, and maintains ${u?.public_repos || "40+"} open-source repositories.\n\n` +
+      `Portfolio: [akashyadav-one.vercel.app](https://akashyadav-one.vercel.app/)`;
+  }
+
+  // --- Resume ---
+  if (question.match(/resume|cv|download/)) {
+    return "Akash's resume is available for download in the About section of the portfolio at [akashyadav-one.vercel.app](https://akashyadav-one.vercel.app/).";
+  }
+
+  // --- Hire ---
+  if (question.match(/hire|available|open to|looking for/)) {
+    return "Akash is open to opportunities. You can reach him at [akashyadv7233@gmail.com](mailto:akashyadv7233@gmail.com) or connect on [LinkedIn](https://www.linkedin.com/in/akashyadav33/).";
+  }
+
+  // --- Default ---
+  return "I can answer questions about Akash. Try asking about:\n\n" +
+    "- His LeetCode rating, rank, or problems solved\n" +
+    "- His GitHub projects or pinned repos\n" +
+    "- His skills and tech stack\n" +
+    "- His education or work experience\n" +
+    "- How to contact him";
 }
 
 export function PortfolioChatbot() {
@@ -30,25 +261,9 @@ export function PortfolioChatbot() {
   const [portfolioData, setPortfolioData] = useState<PortfolioData>({});
   const scrollRef = useRef<HTMLDivElement>(null);
 
-  // Load portfolio data on mount
+  // Load real data on mount (same APIs as GitHub/LeetCode sections)
   useEffect(() => {
-    async function loadData() {
-      try {
-        const [github, leetcode, achievements, skills, about] = await Promise.all([
-          fetchFromAPI(API_ENDPOINTS.GITHUB_REPOS),
-          fetchFromAPI(API_ENDPOINTS.LEETCODE_STATS),
-          fetchFromAPI(API_ENDPOINTS.ACHIEVEMENTS),
-          fetchFromAPI(API_ENDPOINTS.SKILLS),
-          fetchFromAPI(API_ENDPOINTS.ABOUT),
-        ]);
-
-        setPortfolioData({ github, leetcode, achievements, skills, about });
-      } catch (error) {
-        console.error("Error loading portfolio data:", error);
-      }
-    }
-
-    loadData();
+    fetchPortfolioData().then(setPortfolioData);
   }, []);
 
   // Auto-scroll to bottom
@@ -58,136 +273,19 @@ export function PortfolioChatbot() {
     }
   }, [messages]);
 
-  // Initialize with welcome message
+  // Welcome message
   useEffect(() => {
     if (isOpen && messages.length === 0) {
       setMessages([
         {
           id: "welcome",
           role: "assistant",
-          content:
-            "👋 Hi! I'm Akash's AI assistant. Ask me anything about his projects, skills, LeetCode stats, or experience!",
+          content: "Hi, I am a bot serving on behalf of Akash. Feel free to ask me about his projects, skills, LeetCode stats, experience, or how to get in touch with him.",
           timestamp: new Date(),
         },
       ]);
     }
   }, [isOpen]);
-
-  const generateResponse = (userQuestion: string): string => {
-    const question = userQuestion.toLowerCase();
-
-    // GitHub Projects
-    if (question.includes("project") || question.includes("github") || question.includes("repo")) {
-      const repos = portfolioData.github?.repositories || [];
-      const topRepos = repos
-        .sort((a: any, b: any) => b.stars - a.stars)
-        .slice(0, 5);
-      
-      if (topRepos.length > 0) {
-        const repoList = topRepos
-          .map((r: any) => `• **${r.name}** - ${r.description || "No description"} (⭐ ${r.stars} stars)`)
-          .join("\n");
-        return `Akash has ${repos.length} public repositories on GitHub! Here are the top projects:\n\n${repoList}\n\nTotal stars: ${repos.reduce((sum: number, r: any) => sum + r.stars, 0)} ⭐`;
-      }
-    }
-
-    // LeetCode Stats
-    if (question.includes("leetcode") || question.includes("problem") || question.includes("dsa") || question.includes("coding")) {
-      const lc = portfolioData.leetcode;
-      if (lc) {
-        let response = `🏆 **LeetCode Stats:**\n\n`;
-        response += `• Total Problems Solved: **${lc.totalSolved}**\n`;
-        response += `• Easy: ${lc.easySolved}/${lc.easyTotal}\n`;
-        response += `• Medium: ${lc.mediumSolved}/${lc.mediumTotal}\n`;
-        response += `• Hard: ${lc.hardSolved}/${lc.hardTotal}\n`;
-        response += `• Current Streak: ${lc.streak} days 🔥\n`;
-        response += `• Global Ranking: ${lc.ranking?.toLocaleString()}`;
-        
-        if (lc.contestData?.contestAttend > 0) {
-          response += `\n\n**Contest Performance:**\n`;
-          response += `• Contests Attended: ${lc.contestData.contestAttend}\n`;
-          response += `• Rating: ${lc.contestData.contestRating}`;
-        }
-        
-        return response;
-      }
-    }
-
-    // Skills
-    if (question.includes("skill") || question.includes("technology") || question.includes("tech stack") || question.includes("language")) {
-      const skills = portfolioData.skills?.skills;
-      if (skills) {
-        let response = `💻 **Technical Skills:**\n\n`;
-        if (skills.languages?.length) response += `**Languages:** ${skills.languages.join(", ")}\n`;
-        if (skills.frameworks?.length) response += `**Frameworks:** ${skills.frameworks.join(", ")}\n`;
-        if (skills.tools?.length) response += `**Tools:** ${skills.tools.join(", ")}\n`;
-        if (skills.databases?.length) response += `**Databases:** ${skills.databases.join(", ")}\n`;
-        if (skills.cloud?.length) response += `**Cloud:** ${skills.cloud.join(", ")}`;
-        return response;
-      }
-    }
-
-    // About/Bio
-    if (question.includes("about") || question.includes("who") || question.includes("introduce") || question.includes("bio")) {
-      const about = portfolioData.about;
-      if (about) {
-        let response = `👤 **About Akash:**\n\n${about.bio || "Full Stack Developer passionate about building scalable applications."}\n\n`;
-        if (about.location) response += `📍 Location: ${about.location}\n`;
-        if (about.school) response += `🎓 Education: ${about.school}\n`;
-        if (about.stats?.yearsOfExperience) response += `💼 Experience: ${about.stats.yearsOfExperience}+ years\n`;
-        if (about.highlights?.length) {
-          response += `\n**Highlights:**\n${about.highlights.slice(0, 3).map((h: string) => `• ${h}`).join("\n")}`;
-        }
-        return response;
-      }
-    }
-
-    // Education
-    if (question.includes("education") || question.includes("college") || question.includes("university") || question.includes("degree")) {
-      return `🎓 **Education:**\n\nAkash undergraduate from **Thakur College of Engineering & Technology** with a Bachelor of Engineering in Computer Engineering, achieving an impressive **9 CGPA**.`;
-    }
-
-    // Achievements
-    if (question.includes("achievement") || question.includes("accomplishment")) {
-      const achievements = portfolioData.achievements;
-      if (achievements?.bulletPoints?.length) {
-        return `🏆 **Key Achievements:**\n\n${achievements.bulletPoints.map((a: string) => `• ${a}`).join("\n")}`;
-      }
-    }
-
-    // Contact/Social
-    if (question.includes("contact") || question.includes("email") || question.includes("reach") || question.includes("social")) {
-      return `📧 **Get in Touch:**\n\nYou can reach Akash through:\n• GitHub: [github.com/AKASH7233](https://github.com/AKASH7233)\n• LeetCode: [leetcode.com/akashyadv7233](https://leetcode.com/u/akashyadv7233)\n• LinkedIn: Check the contact section on the portfolio\n• Resume: Available for download on the About section`;
-    }
-
-    // Experience
-    if (question.includes("experience") || question.includes("work") || question.includes("job")) {
-      const github = portfolioData.github;
-      const stats = portfolioData.about?.stats;
-      return `💼 **Experience:**\n\nAkash has ${stats?.yearsOfExperience || 2}+ years of coding experience with:\n• ${github?.totalRepos || 30}+ projects built\n• ${github?.totalStars || 0} GitHub stars\n• ${portfolioData.leetcode?.totalSolved || 627}+ problems solved on LeetCode\n• Proficient in full-stack development with modern technologies`;
-    }
-
-    // Contest
-    if (question.includes("contest") || question.includes("competitive")) {
-      const contest = portfolioData.leetcode?.contestData;
-      if (contest?.contestAttend > 0) {
-        return `🏅 **Contest Performance:**\n\n• Contests Attended: ${contest.contestAttend}\n• Contest Rating: ${contest.contestRating}\n• Top ${contest.contestTopPercentage}% globally\n• Global Rank: ${contest.contestGlobalRanking?.toLocaleString()}`;
-      }
-      return `Akash has participated in coding contests on LeetCode. Check the LeetCode section for more details!`;
-    }
-
-    // Default response
-    const suggestions = [
-      "Tell me about your projects",
-      "What are your LeetCode stats?",
-      "What skills do you have?",
-      "Tell me about your education",
-      "What are your achievements?",
-      "How can I contact you?",
-    ];
-
-    return `I can help you learn more about Akash! Here are some things you can ask:\n\n${suggestions.map(s => `• ${s}`).join("\n")}`;
-  };
 
   const handleSend = async () => {
     if (!input.trim()) return;
@@ -203,19 +301,19 @@ export function PortfolioChatbot() {
     setInput("");
     setIsLoading(true);
 
-    // Simulate AI thinking time
     setTimeout(() => {
-      const response = generateResponse(input);
-      const assistantMessage: Message = {
-        id: (Date.now() + 1).toString(),
-        role: "assistant",
-        content: response,
-        timestamp: new Date(),
-      };
-
-      setMessages((prev) => [...prev, assistantMessage]);
+      const response = generateResponse(input, portfolioData);
+      setMessages((prev) => [
+        ...prev,
+        {
+          id: (Date.now() + 1).toString(),
+          role: "assistant",
+          content: response,
+          timestamp: new Date(),
+        },
+      ]);
       setIsLoading(false);
-    }, 500);
+    }, 400);
   };
 
   const handleKeyPress = (e: React.KeyboardEvent) => {
@@ -248,8 +346,8 @@ export function PortfolioChatbot() {
                 <Bot className="h-6 w-6 text-white" />
               </div>
               <div>
-                <h3 className="font-semibold text-foreground">AI Assistant</h3>
-                <p className="text-xs text-muted-foreground">Ask me about Akash</p>
+                <h3 className="font-semibold text-foreground">Akash's Assistant</h3>
+                <p className="text-xs text-muted-foreground">Ask me anything about Akash</p>
               </div>
             </div>
             <Button
@@ -352,9 +450,6 @@ export function PortfolioChatbot() {
                 <Send className="h-4 w-4" />
               </Button>
             </div>
-            <p className="text-xs text-muted-foreground mt-2 text-center">
-              Powered by the portfolio data
-            </p>
           </div>
         </Card>
       )}
