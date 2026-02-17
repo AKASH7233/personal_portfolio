@@ -12,12 +12,12 @@ interface NavLink {
 const navLinks: NavLink[] = [
   { name: "Home", href: "#home" },
   { name: "About", href: "#about" },
-  { name: "Education", href: "#education" },
   { name: "Skills", href: "#skills" },
   { name: "Experience", href: "#experience" },
   { name: "GitHub", href: "#github" },
   { name: "LeetCode", href: "#leetcode" },
   { name: "Achievements", href: "#achievements" },
+  { name: "Education", href: "#education" },
   { name: "Contact", href: "#contact" },
 ];
 
