@@ -1,28 +1,22 @@
-<!-- OG Image Placeholder - Replace with actual image -->
-<svg width="1200" height="630" xmlns="http://www.w3.org/2000/svg">
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="630" viewBox="0 0 1200 630">
   <defs>
-    <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
-      <stop offset="0%" style="stop-color:#0070f3;stop-opacity:1" />
-      <stop offset="100%" style="stop-color:#7928ca;stop-opacity:1" />
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#0a0a0a"/>
+      <stop offset="100%" stop-color="#1a1a2e"/>
+    </linearGradient>
+    <linearGradient id="accent" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0%" stop-color="#00d9ff"/>
+      <stop offset="100%" stop-color="#0070f3"/>
     </linearGradient>
   </defs>
-  <rect width="100%" height="100%" fill="url(#bg)"/>
-  <text x="600" y="200" font-family="Arial, sans-serif" font-size="72" font-weight="bold" text-anchor="middle" fill="white">
-    Akash Yadav
-  </text>
-  <text x="600" y="280" font-family="Arial, sans-serif" font-size="36" text-anchor="middle" fill="white" opacity="0.9">
-    Full Stack Developer
-  </text>
-  <text x="600" y="340" font-family="Arial, sans-serif" font-size="24" text-anchor="middle" fill="white" opacity="0.8">
-    React | Node.js | MongoDB | TypeScript
-  </text>
-  <text x="600" y="420" font-family="Arial, sans-serif" font-size="20" text-anchor="middle" fill="white" opacity="0.7">
-    🚀 Building innovative web applications
-  </text>
-  <text x="600" y="480" font-family="Arial, sans-serif" font-size="18" text-anchor="middle" fill="white" opacity="0.7">
-    💻 LeetCode Problem Solver | 🎯 627+ Problems Solved
-  </text>
-  <text x="600" y="550" font-family="Arial, sans-serif" font-size="16" text-anchor="middle" fill="white" opacity="0.6">
-    akash-portfolio-sage.vercel.app
-  </text>
+  <rect width="1200" height="630" fill="url(#bg)"/>
+  <rect x="0" y="0" width="1200" height="4" fill="url(#accent)"/>
+  <text x="100" y="200" fill="#ffffff" font-family="system-ui,-apple-system,sans-serif" font-size="72" font-weight="700">Akash Yadav</text>
+  <text x="100" y="270" fill="#00d9ff" font-family="system-ui,-apple-system,sans-serif" font-size="36" font-weight="500">Full Stack Developer</text>
+  <text x="100" y="340" fill="#a0a0a0" font-family="system-ui,-apple-system,sans-serif" font-size="24">React.js · Next.js · Node.js · MongoDB · TypeScript</text>
+  <text x="100" y="420" fill="#666666" font-family="system-ui,-apple-system,sans-serif" font-size="20">627+ LeetCode Problems · Knight Badge · 1869 Contest Rating</text>
+  <text x="100" y="460" fill="#666666" font-family="system-ui,-apple-system,sans-serif" font-size="20">B.E. Computer Engineering · 9 CGPA · Thakur College, Mumbai</text>
+  <rect x="100" y="510" width="200" height="50" rx="8" fill="url(#accent)"/>
+  <text x="140" y="542" fill="#ffffff" font-family="system-ui,-apple-system,sans-serif" font-size="18" font-weight="600">View Portfolio</text>
+  <text x="100" y="600" fill="#444444" font-family="system-ui,-apple-system,sans-serif" font-size="16">akashyadav-one.vercel.app</text>
 </svg>

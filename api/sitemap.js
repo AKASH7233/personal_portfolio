@@ -11,7 +11,7 @@ export default async function handler(req, res) {
   }
 
   try {
-    const baseUrl = process.env.SITE_URL || 'https://akash-portfolio-sage.vercel.app';
+    const baseUrl = process.env.SITE_URL || 'https://akashyadav-one.vercel.app';
     
     // Get project sitemap entries
     const projectEntries = await generateProjectSitemapEntries();

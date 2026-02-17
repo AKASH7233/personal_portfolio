@@ -1,8 +1,11 @@
+# https://akashyadav-one.vercel.app robots.txt
 User-agent: Googlebot
 Allow: /
+Crawl-delay: 0
 
 User-agent: Bingbot
 Allow: /
+Crawl-delay: 1
 
 User-agent: Twitterbot
 Allow: /
@@ -13,19 +16,23 @@ Allow: /
 User-agent: LinkedInBot
 Allow: /
 
+User-agent: Slurp
+Allow: /
+
+User-agent: DuckDuckBot
+Allow: /
+
 User-agent: *
 Allow: /
 
-Sitemap: https://akash-portfolio-sage.vercel.app/api/sitemap
-
-# Block access to admin areas
-Disallow: /admin/
-Disallow: /_next/
+Disallow: /api/
 Disallow: /node_modules/
 
-# Allow important SEO files
+# Allow important API routes for SEO
 Allow: /api/sitemap
 Allow: /api/robots
 
-# Cache directives
-Crawl-delay: 1
+Sitemap: https://akashyadav-one.vercel.app/sitemap.xml
+
+# Host
+Host: https://akashyadav-one.vercel.app
