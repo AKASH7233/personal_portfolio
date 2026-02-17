@@ -6,7 +6,7 @@
   "description": "Modern portfolio website for Akash Yadav - Full Stack Developer specializing in React, Node.js, MongoDB, and TypeScript",
   "keywords": [
     "portfolio",
-    "react", 
+    "react",
     "typescript",
     "full-stack",
     "developer",
@@ -86,6 +86,7 @@
     "react": "^18.3.1",
     "react-day-picker": "^8.10.1",
     "react-dom": "^18.3.1",
+    "react-github-calendar": "^5.0.5",
     "react-helmet-async": "^2.0.5",
     "react-hook-form": "^7.53.0",
     "react-markdown": "^10.1.0",
